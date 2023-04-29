@@ -27,7 +27,8 @@ struct mount_args {
 extern const char *symlinks[];
 extern const struct mount_args filesystems[];
 
-int init_container_symlinks(const char *links[]);
-int init_container_filesystem(const struct mount_args *args);
+int namespace_init_container_symlinks(const char *links[]);
+int namespace_init_container_filesystem(const struct mount_args *args);
+int namespace_attach_to_container(pid_t pid);
 
 #endif

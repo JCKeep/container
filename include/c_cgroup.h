@@ -29,6 +29,11 @@
 #define cpuset_limit_from(cpuset) cpuset_limit(cpuset, 1)
 #define cpuset_limit_to(cpuset) cpuset_limit(cpuset, 0)
 
+
+#define CONTAINER_DEAMON (0x1 << 0)
+#define CONTAINER_EXEC (0x1 << 1)
+
+
 enum cgroup_index {
 	CONTAINER_PID = 1,
 	CPU_CGROUP_LIMIT,
@@ -39,7 +44,6 @@ enum cgroup_index {
 
 extern char *auto_cpu_cgroup[];
 
-int init_container_cgroup(pid_t pid);
-int container_main(void *arg);
+int cgroup_init_container_cgrp(pid_t pid);
 
 #endif

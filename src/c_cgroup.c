@@ -5,9 +5,9 @@ char *auto_cpu_cgroup[] = {
 	[NULLCGROUP] = NULL,
 };
 
-int init_container_cgroup(pid_t pid)
+int cgroup_init_container_cgrp(pid_t pid)
 {
-	int  _pid;
+	int _pid;
 	char spid[16], cpu_limit[16], mem_limit[16], cpuset_limit[16];
 
 	switch ((_pid = fork())) {

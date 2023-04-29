@@ -6,6 +6,8 @@
 #include <sched.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <signal.h>
+#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -16,10 +18,17 @@
 #include <sys/mount.h>
 
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"
+
+#ifndef CONTAINER_NAME 
 #define CONTAINER_NAME  "demo-container"
+#endif
 
 #ifndef ROOT
 #define ROOT "/tmp/" CONTAINER_NAME
+#endif
+
+#ifndef PIDFILE
+#define PIDFILE "./run/pidfile"
 #endif
 
 #endif

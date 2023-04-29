@@ -1,5 +1,6 @@
 #include <c_namespace.h>
 
+/* minimal container filesystems to mount */
 const struct mount_args filesystems[] = {
 	[ROOTFS] = {
 		    .name = "rootfs",
@@ -29,6 +30,11 @@ const struct mount_args filesystems[] = {
 		   .filesystemtype = "sysfs",
 		   .mode = 0555,
 		    },
+#ifdef MINUSRFS
+	[USRFS] = {
+		   .name = "usrfs",
+		    },
+#else
 	[USRFS] = {
 		   .name = "usrfs",
 		   .source = "/usr",
@@ -36,6 +42,7 @@ const struct mount_args filesystems[] = {
 		   .flags = MS_BIND,
 		   .mode = 0555,
 		    },
+#endif
 	[ETCFS] = {
 		   .name = "etcfs",
 		   .source = "/etc",
@@ -68,11 +75,16 @@ int init_container_symlinks(const char *links[])
 	return 0;
 }
 
+/* mount given filesystems */
 int init_container_filesystem(const struct mount_args *args)
 {
 	const struct mount_args *fs = args, *end = &args[NULLFS];
 
 	while (fs != end) {
+		if (!fs->target || !fs->source) {
+			goto unimplement;
+		}
+
 		if (mkdir(fs->target, fs->mode) < 0) {
 			fprintf(stderr, "mkdir %s: %s\n", fs->target,
 				strerror(errno));
@@ -90,7 +102,7 @@ int init_container_filesystem(const struct mount_args *args)
 		fs++;
 	}
 
-	if (chroot(args[ROOTFS].target) < 0) {
+	if (chroot(ROOT) < 0) {
 		perror("chroot");
 		goto fail;
 	}
@@ -106,6 +118,9 @@ int init_container_filesystem(const struct mount_args *args)
 	}
 
 	return 0;
+
+	  unimplement:
+	fprintf(stderr, "unimplememt\n");
 
       fail:
 	return -1;

@@ -1,7 +1,7 @@
-#include <container.h>
-
 #ifndef CONTAINER_CGROUP_H
 #define CONTAINER_CGROUP_H
+
+#include <container.h>
 
 #define AUTO_CGROUP     "./scripts/cgroup_attach"
 
@@ -14,7 +14,7 @@
 #define CPU_LIMIT 		30000
 /* container memory limit: 128M */
 #define MEMORY_LIMIT 	(1 << 27)
-/* container cpuset: 0-1, one core */
+/* container cpuset: 0-1, 2 core */
 #define CPUSET_LIMIT    0x0001
 /* container stack size: 2M */
 #define STACK_SIZE 		(1 << 21)

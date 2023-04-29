@@ -7,9 +7,10 @@ char *auto_cpu_cgroup[] = {
 
 int init_container_cgroup(pid_t pid)
 {
+	int  _pid;
 	char spid[16], cpu_limit[16], mem_limit[16], cpuset_limit[16];
 
-	switch (fork()) {
+	switch ((_pid = fork())) {
 	case -1:
 		perror("fork");
 		return -1;
@@ -30,6 +31,7 @@ int init_container_cgroup(pid_t pid)
 			return -1;
 		}
 	default:
+		waitpid(_pid, NULL, 0);
 		break;
 	}
 

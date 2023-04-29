@@ -32,7 +32,7 @@ int container_main(void *arg)
 		goto fail;
 	case 0:
 		if (execvpe(container[0], container, environ) < 0) {
-			perror("execv");
+			perror("execv container");
 			goto fail;
 		}
 	default:
@@ -102,8 +102,17 @@ int init_container_environ()
 
 	if (setenv("color_prompt", "yes", 1) < 0)
 		goto fail;
-
-	switch (fork()) {
+    
+	/*
+	 * vfork() use struct completion to promise
+	 * child complete or do exec first.
+	 * 
+	 * struct completion {
+	 *     unsigned int done;
+	 *     struct swait_queue_head wait;
+	 * }
+	 */
+	switch (vfork()) {
 	case -1:
 		perror("fork");
 		goto fail;
@@ -123,6 +132,7 @@ int init_container_environ()
 			goto fail;
 	}
 
+	/* safety in uts_namespace, we set our own container hostname */
 	if (sethostname(CONTAINER_NAME, sizeof(CONTAINER_NAME) - 1) < 0) {
 		perror("sethostname");
 		goto fail;

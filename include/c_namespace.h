@@ -1,7 +1,7 @@
-#include <container.h>
-
 #ifndef CONTAINER_NAMESPACE_H
 #define CONTAINER_NAMESPACE_H
+
+#include <container.h>
 
 enum filesystem_type {
 	ROOTFS = 0,

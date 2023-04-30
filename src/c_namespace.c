@@ -7,7 +7,7 @@ struct namespace_map {
 
 #define DEFINE_NSMAP(_name, _flag) { .name = _name, .flags = _flag }
 
-/* minimal container filesystems to mount */
+/** minimal container filesystems to mount */
 const struct mount_args filesystems[] = {
 	[ROOTFS] = {
 		    .name = "rootfs",
@@ -21,7 +21,7 @@ const struct mount_args filesystems[] = {
 		    .source = "proc",
 		    .target = ROOT "/proc",
 		    .filesystemtype = "proc",
-		    .mode = 0555,
+		    .mode = 0755,
 		     },
 	[DEVFS] = {
 		   .name = "devfs",
@@ -61,6 +61,7 @@ const struct mount_args filesystems[] = {
 	[NULLFS] = { },
 };
 
+/**  */
 const char *symlinks[] = {
 	/* from    ->      to */
 	"/usr/bin", "/bin",

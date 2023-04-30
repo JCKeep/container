@@ -2,13 +2,13 @@ SOURCES = $(wildcard src/*.c)
 OBJECTS = $(SOURCES:.c=.o)
 INCLUDE = $(PWD)/include
 DEFINES = -DNO_NSUSER
-FLAGS = -O2 -Wall -Wno-incompatible-pointer-types
+FLAGS = -O2 -Wall -Wno-incompatible-pointer-types -Wno-unused-result
 OUT_DIR = $(PWD)/target/
 TARGET = container
 
 all: $(TARGET)
 
-.PHONY: fmt container clean run exec
+.PHONY: fmt container clean run exec exit
 
 $(TARGET): $(OBJECTS)
 	gcc $(DEFINES) $^ -o $(OUT_DIR)/$@
@@ -19,10 +19,13 @@ src/%.o: src/%.c
 
 run:
 	@rm -rf /tmp/demo-container
-	@$(OUT_DIR)/$(TARGET)
+	@$(OUT_DIR)/$(TARGET) run
 
 exec:
 	@$(OUT_DIR)/$(TARGET) exec
+
+exit:
+	@$(OUT_DIR)/$(TARGET) exit
 
 fmt:
 	fd '.*\.c' -X indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 {}

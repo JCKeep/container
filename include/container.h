@@ -44,6 +44,7 @@
 #define __unused __attribute__((unused))
 #define __alias(name) __attribute__((alias(name)))
 #define __aligned(n) __attribute__((aligned(n)))
+#define __constructor __attribute__((constructor))
 
 int deamon();
 int container_get_pid();

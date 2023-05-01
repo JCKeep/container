@@ -35,8 +35,13 @@
 
 ## TO IMPLEMENT
 
-- [x] attach to container bash: `make exec`
-- [ ] add net_namespace
-- [ ] implememt config file like Dockerfile
+- [x] 实现 make exec 进入容器 bash
+- [ ] 重构 cgroup 模块
+- [ ] 加入 user_namespace 保户主机文件安全
+- [ ] 增加 net_namespace 支持
+- [ ] 增加配置文件支持
+- [ ] 支持多个容器，实现管理多个容器的用户命令
+- [ ] namespace 内核源码实现解析
+- [ ] cgroup 内核源码实现解析
 
 **. . .**

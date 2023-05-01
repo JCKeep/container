@@ -3,6 +3,9 @@
 struct namespace_map {
 	char *name;
 	unsigned long flags;
+
+	/* todo */
+	int (*ns_handler)(struct namespace_map * ns);
 };
 
 #define DEFINE_NSMAP(_name, _flag) { .name = _name, .flags = _flag }
@@ -54,6 +57,14 @@ const struct mount_args filesystems[] = {
 		   .name = "etcfs",
 		   .source = "/etc",
 		   .target = ROOT "/etc",
+		   .flags = MS_BIND,
+		   .mode = 0555,
+		    },
+	/* no need ? */
+	[VARFS] = {
+		   .name = "varfs",
+		   .source = "/var",
+		   .target = ROOT "/var",
 		   .flags = MS_BIND,
 		   .mode = 0555,
 		    },
@@ -176,7 +187,7 @@ int namespace_attach_to_container(pid_t pid)
 {
 	int fd;
 	DIR *dir;
-	char ns_path[512];
+	char ns_path[1024];
 	struct dirent *ns = NULL;
 	unsigned long flag = 0;
 
@@ -226,5 +237,125 @@ int namespace_attach_to_container(pid_t pid)
 
       fail:
 	BUG();
+	return -1;
+}
+
+static int write_map(pid_t pid, const char *path, uid_t inside_id,
+		     uid_t outside_id, size_t count)
+{
+	int fd;
+	char buf[1024];
+
+	snprintf(buf, sizeof(buf), "%d %d %zu\n", inside_id, outside_id, count);
+	if ((fd = open(path, O_WRONLY)) == -1) {
+		return -1;
+	}
+
+	if (write(fd, buf, strlen(buf)) == -1) {
+		close(fd);
+		return -1;
+	}
+
+	close(fd);
+	return 0;
+}
+
+static int write_uid_map(pid_t pid, uid_t inside_id, uid_t outside_id,
+			 size_t count)
+{
+	char path[128];
+
+	snprintf(path, sizeof(path), "/proc/%d/uid_map", pid);
+
+	return write_map(pid, path, inside_id, outside_id, count);
+}
+
+static int write_gid_map(pid_t pid, uid_t inside_id, uid_t outside_id,
+			 size_t count)
+{
+	char path[128];
+
+	snprintf(path, sizeof(path), "/proc/%d/gid_map", pid);
+
+	return write_map(pid, path, inside_id, outside_id, count);
+}
+
+int namespace_init_user_ns(pid_t pid, uid_t uid, gid_t gid)
+{
+	if (write_uid_map(pid, 0, uid, 1) < 0) {
+		perror("write_uid_map");
+		return -1;
+	}
+
+	if (write_gid_map(pid, 0, gid, 1) < 0) {
+		perror("write_gid_map");
+		return -1;
+	}
+
+	return 0;
+}
+
+int namespace_preinit_net_ns()
+{
+	const static char *cmd[] = {
+		"./scripts/net_namespace_init",
+		NULL,
+	};
+
+	switch (vfork()) {
+	case -1:
+		BUG();
+		goto fail;
+	case 0:
+		if (execv(cmd[0], cmd) < 0) {
+			BUG();
+			goto fail;
+		}
+	default:
+		break;
+	}
+
+	return 0;
+
+      fail:
+	return -1;
+}
+
+int namespace_attach_net_ns(pid_t pid)
+{
+	const static char *cmd[] = {
+		"./scripts/net_namespace_attach",
+		NULL,
+	};
+
+	int fd = open("/var/run/netns/" NET_NAMESPACE, O_RDONLY);
+	if (fd < 0) {
+		perror("open my_net_ns");
+		goto fail;
+	}
+
+	if (setns(fd, CLONE_NEWNET) < 0) {
+		perror("setns net");
+		goto fail;
+	}
+
+	close(fd);
+
+	switch (vfork()) {
+	case -1:
+		BUG();
+		goto fail;
+	case 0:
+		if (execv(cmd[0], cmd) < 0) {
+			BUG();
+			goto fail;
+		}
+	default:
+		break;
+	}
+
+	return 0;
+
+      fail:
 	return -1;
 }

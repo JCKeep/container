@@ -10,7 +10,6 @@ extern int container_run_deamon;
 void signal_handler(int sig)
 {
 	container_exiting = 1;
-	printf("Hello World");
 }
 
 void container_init_signal()
@@ -145,6 +144,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (deamon() < 0) {
+		BUG();
 		goto fail;
 	}
 
@@ -171,10 +171,14 @@ int main(int argc, char *argv[])
 	return 0;
 
       fail:
-	BUG();
 	exit(EXIT_FAILURE);
 }
 
+/**
+ * flag:
+ *     CONTAINER_DEAMON on container run
+ *     CONTAINER_EXEC on container exec
+ */
 int container_init_environ(int flag)
 {
 	char **p;

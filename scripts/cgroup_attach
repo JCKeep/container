@@ -13,6 +13,7 @@ else
 fi
 
 echo $cpu_limit > /sys/fs/cgroup/cpu/my_cpu_cgroup/cpu.cfs_quota_us
+echo 512 > /sys/fs/cgroup/cpu/my_cpu_cgroup/cpu.shares
 echo $pid > /sys/fs/cgroup/cpu/my_cpu_cgroup/tasks
 
 # cpuacct cgroup

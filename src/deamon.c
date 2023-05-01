@@ -43,7 +43,6 @@ int deamon()
 		return -1;
 	}
 
-	printf("write pid\n");
 	if (container_run_pidfile(PIDFILE, getpid()) < 0) {
 		return -1;
 	}

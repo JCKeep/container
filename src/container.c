@@ -2,11 +2,6 @@
 #include <c_cgroup.h>
 #include <c_namespace.h>
 
-static char *container[] = {
-	"/bin/bash",
-	NULL,
-};
-
 sigset_t mask;
 int container_pid;
 int container_exiting;
@@ -48,9 +43,6 @@ int container_deamon(void *arg)
 	if (namespace_init_container_symlinks(symlinks) < 0)
 		goto fail;
 
-	if (deamon() < 0)
-		goto fail;
-
 	sigemptyset(&mask);
 	for (;;) {
 		sigsuspend(&mask);
@@ -63,6 +55,7 @@ int container_deamon(void *arg)
 	return 0;
 
       fail:
+	BUG();
 	exit(EXIT_FAILURE);
 }
 
@@ -70,6 +63,10 @@ int container_exec(int argc, char *argv[])
 {
 	int pidfile, status;
 	pid_t pid;
+	const static char *container[] = {
+		"/bin/bash",
+		NULL,
+	};
 
 	pidfile = open(PIDFILE, O_RDONLY);
 	if (read(pidfile, &pid, sizeof(pid_t)) < 0) {
@@ -116,6 +113,7 @@ int container_exec(int argc, char *argv[])
 	return 0;
 
       fail:
+	BUG();
 	return -1;
 }
 
@@ -144,7 +142,10 @@ int main(int argc, char *argv[])
 	} else if (argc > 2 && !strcmp(argv[1], "run")
 		   && !strcmp(argv[2], "--deamon")) {
 		container_run_deamon = 1;
-		BUG();
+	}
+
+	if (deamon() < 0) {
+		goto fail;
 	}
 
 	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE
@@ -166,18 +167,18 @@ int main(int argc, char *argv[])
 	if (container_run_pidfile(PIDFILE, pid) < 0) {
 		goto fail;
 	}
-	// munmap(stack, STACK_SIZE);
 
 	return 0;
 
       fail:
+	BUG();
 	exit(EXIT_FAILURE);
 }
 
 int container_init_environ(int flag)
 {
 	char **p;
-	static char *cmd[] = {
+	const static char *cmd[] = {
 		"/usr/bin/cp",
 		"scripts/.bashrc",
 		ROOT "/root/.bashrc",
@@ -230,6 +231,7 @@ int container_init_environ(int flag)
 	return 0;
 
       fail:
+	BUG();
 	return -1;
 }
 

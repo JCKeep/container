@@ -21,7 +21,7 @@ const struct mount_args filesystems[] = {
 		    .source = "proc",
 		    .target = ROOT "/proc",
 		    .filesystemtype = "proc",
-		    .mode = 0755,
+		    .mode = 0555,
 		     },
 	[DEVFS] = {
 		   .name = "devfs",
@@ -147,11 +147,12 @@ int namespace_init_container_filesystem(const struct mount_args *args)
 	fprintf(stderr, "\033[1munimplememt\033[0m\n");
 
       fail:
+	BUG();
 	return -1;
 }
 
 /**
- * only free namespace, for loop is enough
+ * only few namespace, for loop is enough
  */
 static unsigned long namespace_find_flags(const char *name)
 {
@@ -224,5 +225,6 @@ int namespace_attach_to_container(pid_t pid)
 	return 0;
 
       fail:
+	BUG();
 	return -1;
 }

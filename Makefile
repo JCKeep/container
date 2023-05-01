@@ -19,7 +19,7 @@ src/%.o: src/%.c
 
 run:
 	@rm -rf /tmp/demo-container
-	@$(OUT_DIR)/$(TARGET) run
+	@$(OUT_DIR)/$(TARGET) run --deamon
 
 exec:
 	@$(OUT_DIR)/$(TARGET) exec

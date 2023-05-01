@@ -10,8 +10,8 @@
 #define CPUACCT_CGROUP  "my_cpuacct_cgroup"
 #define MEMORY_CGROUP   "my_memory_cgroup"
 
-/* container cpu limit: 10% */
-#define CPU_LIMIT 		10000
+/* container cpu limit: 5% */
+#define CPU_LIMIT 		5000
 /* container memory limit: 64M */
 #define MEMORY_LIMIT 	(1 << 26)
 /* container cpuset: 0-1, 2 core */

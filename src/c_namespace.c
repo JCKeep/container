@@ -12,7 +12,30 @@ struct namespace_map {
 
 /** minimal container filesystems to mount */
 const struct mount_args filesystems[] = {
-#ifdef MINIMUM_ROOTFS
+#ifdef OVERLAY_ROOTFS
+	[ROOTFS] = {
+		.name = "rootfs",
+		    .source = "overlay",
+		    .target = ROOT,
+		    .filesystemtype = "overlay",
+			.flags = MS_MGC_VAL,
+		    .mode = 0755,
+			.data = "lowerdir=" LOWER_DIR ",upperdir=" UPPER_DIR ",workdir=" WORK_DIR,
+	},
+	[PROCFS] = {
+		    .name = "procfs",
+		    .source = "proc",
+		    .target = ROOT "/proc",
+		    .filesystemtype = "proc",
+		    .mode = 0555,
+		     },
+	[SYSFS] = {
+		   .name = "sysfs",
+		   .source = "sysfs",
+		   .target = ROOT "/sys",
+		   .filesystemtype = "sysfs",
+		   .mode = 0555,
+		    },
 #else
 	[ROOTFS] = {
 		    .name = "rootfs",
@@ -71,11 +94,13 @@ const struct mount_args filesystems[] = {
 
 /**  */
 const char *symlinks[] = {
+#ifndef OVERLAY_ROOTFS
 	/* from    ->      to */
 	"/usr/bin", "/bin",
 	"/usr/lib", "/lib",
 	"/usr/lib64", "/lib64",
 	"/usr/sbin", "/sbin",
+#endif
 	/* tag for the end */
 	NULL, NULL,
 };
@@ -114,13 +139,15 @@ int namespace_init_container_filesystem(const struct mount_args *args)
 
 	while (fs != end) {
 		if (!fs->target || !fs->source) {
-			continue;
+			goto next;
 		}
 
 		if (mkdir(fs->target, fs->mode) < 0) {
+#ifndef OVERLAY_ROOTFS
 			fprintf(stderr, "mkdir %s: %s\n", fs->target,
 				strerror(errno));
 			goto fail;
+#endif
 		}
 
 		if (mount
@@ -131,6 +158,7 @@ int namespace_init_container_filesystem(const struct mount_args *args)
 			goto fail;
 		}
 
+next:
 		fs++;
 	}
 
@@ -140,8 +168,10 @@ int namespace_init_container_filesystem(const struct mount_args *args)
 	}
 
 	if (mkdir("/root", 0755) < 0) {
+#ifndef OVERLAY_ROOTFS
 		perror("mkdir /root");
 		goto fail;
+#endif
 	}
 
 	if (chdir("/root") < 0) {

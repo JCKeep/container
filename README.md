@@ -6,41 +6,54 @@
 
 1. 编译
 
-    ```
-    make
+    ```shell
+    $ make
     ```
 
-    ![image-20230501003721877](./assets/image-20230501003721877.png)
+    ![image-20230502161446185](./assets/image-20230502161446185.png)
+
+    若要使用`Overlay FS`提供的文件系统分层及写时拷贝以保护主机文件系统安全，则可使用
+
+    ```shell
+    make FEATURES=overlay
+    ```
+
+    ![image-20230502161639934](./assets/image-20230502161639934.png)
 
 2. 运行容器
 
-    ```
-    make run
+    ```shell
+    $ make run
     ```
 
-    ![image-20230501003752741](./assets/image-20230501003752741.png)
-
-    当输出`container starting`是代表容器已经开始在后台运行了
+    当没有任何输出则容器已经开始在后台运行了
 
 3. 进入容器
 
-    ```
-    make exec
+    ```shell
+    $ make exec
     ```
 
-    ![image-20230501003957266](./assets/image-20230501003957266.png)
+    ![image-20230502161758432](./assets/image-20230502161758432.png)
 
 这样我们就得到了一个运行在一个新的容器中的bash，这个容器与主机资源相互隔离，可以在`include/c_cgroup.h`中对容器资源进行限制，默认为 `cpu: 10%, memory: 64M, cpuset: 0-1, stack: 32K`，未来将增加配置文件支持，像Dockerfile及docker-compose.yml一样对容器进行定制化配置。
+
+4. 退出容器
+
+   ```shell
+   $ make exit
+   ```
 
 
 ## TO IMPLEMENT
 
 - [x] 实现 make exec 进入容器 bash
+- [x] 使用 OverlayFS 文件系统重新实现 rootfs
+- [ ] 增加配置文件支持
 - [ ] 重构 namespace 模块
 - [ ] 实现一个容器最小文件系统
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
 - [ ] 增加 net_namespace 支持 (Linux net 子系统过于复杂，将在7月份开始学习)
-- [ ] 增加配置文件支持
 - [ ] 支持多个容器，实现管理多个容器的用户命令
 - [ ] 使用 OverlayFS 文件系统支持容器镜像
 - [ ] namespace 内核源码实现解析
@@ -151,77 +164,4 @@ charGPT:
 >
 > 是的，一般情况下最小文件系统不会包含bash，而是包含一个更加轻量的shell，比如Alpine Linux默认的shell是ash。因此，启动容器后进入最小文件系统，使用的命令行解释器一般是sh，而不是bash。
 
-
-
-## overlayfs
-
-ME: **如何使用overlayfs挂载一个最小文件系统**
-
-charGPT:
-
-> 要使用OverlayFS挂载一个最小文件系统，首先需要创建两个目录，分别用于挂载lowerdir和upperdir：
->
-> ```shell
-> mkdir /tmp/lower
-> mkdir /tmp/upper
-> ```
->
-> 接下来，可以将一个预先构建好的最小文件系统作为lowerdir，这里以busybox的最小文件系统为例：
->
-> ```shell
-> wget https://www.busybox.net/downloads/binaries/1.31.1-defconfig-multiarch/busybox-x86_64
-> chmod +x busybox-x86_64
-> ./busybox-x86_64 --list > files.txt
-> mkdir /tmp/lower/rootfs
-> cat files.txt | xargs -I {} sh -c 'cp -av /{} /tmp/lower/rootfs/{}'
-> ```
->
-> 然后，可以使用mount命令挂载OverlayFS：
->
-> ```shell
-> mount -t overlay overlay -o lowerdir=/tmp/lower/rootfs,upperdir=/tmp/upper,workdir=/tmp/work /mnt
-> ```
->
-> 其中，lowerdir指定了lower directory，即预先构建好的最小文件系统；upperdir指定了upper directory，即存储OverlayFS的写入数据；workdir指定了work directory，即OverlayFS内部使用的工作目录。
->
-> 挂载完成后，可以进入/mnt目录查看最小文件系统的内容。
->
-> ```shell
-> cd /mnt
-> ls
-> ```
->
-> 这样就可以使用OverlayFS挂载一个最小文件系统了。
-
-ME: **/tmp/lower/rootfs可以是其他文件系统吗**
-
-chatGPT:
-
-> 是的，`/tmp/lower/rootfs` 可以是其他文件系统，只要它们可以被挂载到该位置。`lowerdir` 可以指定一个或多个只读的目录作为下层目录，这些目录可以是各种类型的文件系统，包括 ext4、xfs 等等。这些下层目录中的内容将被保留在 overlay 文件系统中，而上层目录中的内容将会隐藏下层目录中的相同路径的内容。
-
-ME: **upperdir用来做什么的**
-
-chatGPT:
-
-> `upperdir` 是 OverlayFS 中的一个参数，表示 OverlayFS 在写入文件时的一个工作目录。OverlayFS 在读取文件时会首先检查 `upperdir` 目录中是否存在该文件，如果存在则直接使用该文件，如果不存在则会继续在 `lowerdir` 目录中查找。
->
-> 在 OverlayFS 中，`upperdir` 是可写的，所有的写操作会在 `upperdir` 中进行，而 `lowerdir` 是只读的，不能在 `lowerdir` 中进行写操作。这种设计使得 OverlayFS 支持写时复制（copy-on-write）的机制，即当对一个文件进行修改时，OverlayFS 会将这个文件复制到 `upperdir` 目录中，并在该文件的副本上进行修改，从而避免了对 `lowerdir` 目录中的文件进行直接修改。这种机制可以提高文件系统的性能，也可以保证文件系统的稳定性，避免对原有文件的破坏。
-
-ME: **那我如何使用多层目录**
-
-chatGPT: 
-
-> 使用多层目录的方式与单层目录类似，只需要在挂载时指定多个 `lowerdir` 参数即可。例如：
->
-> ```shell
-> mount -t overlay overlay -o lowerdir=/tmp/lower1:/tmp/lower2:/tmp/lower3,upperdir=/tmp/upper,workdir=/tmp/work /mnt/overlay
-> ```
->
-> 这个命令将 `/tmp/lower1`、`/tmp/lower2` 和 `/tmp/lower3` 这三个目录作为下层目录，`/tmp/upper` 目录作为上层目录，`/tmp/work` 目录作为工作目录，然后将它们作为一个整体挂载到 `/mnt/overlay` 目录。
-
-ME: **多层目录优先级如何**
-
-chatGPT:
-
-> 在 OverlayFS 中，多个层的文件系统是按照挂载的先后顺序来确定优先级的。越后挂载的文件系统的优先级越高。在读取某个文件时，会从上层文件系统向下查找，直到找到该文件或查找完所有的层。在写入文件时，会将修改写入到最高优先级的上层文件系统中。如果上层文件系统没有该文件，则会创建新的文件。如果上层文件系统存在该文件，则会在上层文件系统中进行修改，而下层的文件系统中的该文件并不会被修改。因此，在 OverlayFS 中，多层目录的优先级可以通过挂载顺序来控制。
 

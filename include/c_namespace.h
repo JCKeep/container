@@ -6,6 +6,14 @@
 /* unused */
 #define NET_NAMESPACE "my_net_ns"
 
+#ifdef OVERLAY_ROOTFS
+
+#define LOWER_DIR "/"
+#define UPPER_DIR "/tmp/upper"
+#define WORK_DIR  "/tmp/work"
+
+#endif /* OVERLAY_ROOTFS */
+
 enum namespace {
 	MNT,
 	NET,

@@ -1,10 +1,14 @@
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(SOURCES:.c=.o)
 INCLUDE = $(PWD)/include
-DEFINES = -DNO_NSUSER
-FLAGS = -O2 -Wall -Wno-incompatible-pointer-types -Wno-unused-result
+DEFINES = -DNO_NSUSER 
+FLAGS = -O2 -Wall -Wno-incompatible-pointer-types -Wno-unused-result -Wno-unused-label
 OUT_DIR = $(PWD)/target/
 TARGET = container
+
+ifeq ($(FEATURES),overlay)
+	DEFINES += -DOVERLAY_ROOTFS 
+endif
 
 all: $(TARGET)
 

@@ -182,12 +182,14 @@ int main(int argc, char *argv[])
 int container_init_environ(int flag)
 {
 	char **p;
+#ifndef OVERLAY_ROOTFS
 	const static char *cmd[] = {
 		"/usr/bin/cp",
 		"scripts/.bashrc",
 		ROOT "/root/.bashrc",
 		NULL,
 	};
+#endif
 
 	if (setenv("color_prompt", "yes", 1) < 0)
 		goto fail;
@@ -205,6 +207,7 @@ int container_init_environ(int flag)
 	 *     struct swait_queue_head wait;
 	 * }
 	 */
+#ifndef OVERLAY_ROOTFS
 	switch (vfork()) {
 	case -1:
 		perror("fork");
@@ -215,6 +218,7 @@ int container_init_environ(int flag)
 	default:
 		break;
 	}
+#endif
 
 	for (p = environ; *p; ++p) {
 		char *s = strdup(*p);

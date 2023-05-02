@@ -12,6 +12,8 @@ struct namespace_map {
 
 /** minimal container filesystems to mount */
 const struct mount_args filesystems[] = {
+#ifdef MINIMUM_ROOTFS
+#else
 	[ROOTFS] = {
 		    .name = "rootfs",
 		    .source = "/dev/null",
@@ -40,11 +42,6 @@ const struct mount_args filesystems[] = {
 		   .filesystemtype = "sysfs",
 		   .mode = 0555,
 		    },
-#ifdef MINUSRFS
-	[USRFS] = {
-		   .name = "usrfs",
-		    },
-#else
 	[USRFS] = {
 		   .name = "usrfs",
 		   .source = "/usr",
@@ -52,7 +49,6 @@ const struct mount_args filesystems[] = {
 		   .flags = MS_BIND,
 		   .mode = 0555,
 		    },
-#endif
 	[ETCFS] = {
 		   .name = "etcfs",
 		   .source = "/etc",
@@ -68,6 +64,7 @@ const struct mount_args filesystems[] = {
 		   .flags = MS_BIND,
 		   .mode = 0555,
 		    },
+#endif
 	/* tag for the end */
 	[NULLFS] = { },
 };
@@ -117,7 +114,7 @@ int namespace_init_container_filesystem(const struct mount_args *args)
 
 	while (fs != end) {
 		if (!fs->target || !fs->source) {
-			goto unimplement;
+			continue;
 		}
 
 		if (mkdir(fs->target, fs->mode) < 0) {

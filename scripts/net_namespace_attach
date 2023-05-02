@@ -1,4 +1,0 @@
-#!/bin/bash
-
-sudo ip netns exec my_net_ns bash -c 'echo $1 > /var/run/netns/my-ns'
-sudo ip netns exec my_net_ns ip addr add 192.168.1.2/24 dev eth0

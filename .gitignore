@@ -1,2 +1,4 @@
 target/
 run/
+scripts/net_namespace_attach
+scripts/net_namespace_init

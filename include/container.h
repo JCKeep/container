@@ -11,12 +11,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
+#include <pidfile.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <stdatomic.h>
+
+#ifdef DEBUG_INFO
+#include <dbg.h>
+#else
+#define dbg(x) 
+#endif
 
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"
 
@@ -26,10 +34,6 @@
 
 #ifndef ROOT
 #define ROOT "/tmp/" CONTAINER_NAME
-#endif
-
-#ifndef PIDFILE
-#define PIDFILE "./run/pidfile"
 #endif
 
 #ifndef HAVE_BUG

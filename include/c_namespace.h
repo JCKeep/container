@@ -14,7 +14,7 @@
 
 #endif /* OVERLAY_ROOTFS */
 
-enum namespace {
+enum snamespace {
 	MNT,
 	NET,
 	PID,
@@ -39,6 +39,9 @@ enum filesystem_type {
 	NULLFS,
 };
 
+struct mount_args;
+typedef int (*mount_handler)(struct mount_args *fs);
+
 struct mount_args {
 	const char *name;
 	const char *source;
@@ -47,6 +50,7 @@ struct mount_args {
 	unsigned long flags;
 	mode_t mode;
 	void *data;
+	mount_handler handler;
 };
 
 extern const char *symlinks[];

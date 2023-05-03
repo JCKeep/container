@@ -10,6 +10,42 @@ struct namespace_map {
 
 #define DEFINE_NSMAP(_name, _flag) { .name = _name, .flags = _flag }
 
+
+#ifdef OVERLAY_ROOTFS
+
+static int overlayfs_handler(struct mount_args __unused *fs)
+{
+	int __unused ret;
+	DIR *dir = NULL;
+
+	if (!(dir = opendir(LOWER_DIR))) {
+		fprintf(stderr, "lowerdir not exist\n");
+		return -1;
+	} else {
+		closedir(dir);
+	}
+
+	if (!(dir = opendir(UPPER_DIR))) {
+		ret = mkdir(UPPER_DIR, 0755);
+	} else {
+		dbg("dir exist");
+		closedir(dir);
+	}
+
+	if (!(dir = opendir(WORK_DIR))) {
+		ret = mkdir(WORK_DIR, 0755);
+	} else {
+		dbg("dir exist");
+		closedir(dir);
+	}
+
+	dbg("overlay");
+
+	return 0;
+}
+#endif
+
+
 /** minimal container filesystems to mount */
 const struct mount_args filesystems[] = {
 #ifdef OVERLAY_ROOTFS
@@ -21,6 +57,7 @@ const struct mount_args filesystems[] = {
 			.flags = MS_MGC_VAL,
 		    .mode = 0755,
 			.data = "lowerdir=" LOWER_DIR ",upperdir=" UPPER_DIR ",workdir=" WORK_DIR,
+			.handler = overlayfs_handler,
 	},
 	[PROCFS] = {
 		    .name = "procfs",
@@ -135,6 +172,7 @@ int namespace_init_container_symlinks(const char *links[])
 /* mount given filesystems */
 int namespace_init_container_filesystem(const struct mount_args *args)
 {
+	int ret = 0;
 	const struct mount_args *fs = args, *end = &args[NULLFS];
 
 	while (fs != end) {
@@ -148,6 +186,14 @@ int namespace_init_container_filesystem(const struct mount_args *args)
 				strerror(errno));
 			goto fail;
 #endif
+		}
+
+		if (fs->handler) {
+			ret = fs->handler(fs);
+		}
+
+		if (ret < 0) {
+			goto fail;
 		}
 
 		if (mount

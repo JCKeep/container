@@ -3,8 +3,8 @@
 #include <c_namespace.h>
 
 sigset_t mask;
-int container_pid;
-int container_exiting;
+extern int container_pid;
+extern int container_exiting;
 extern int container_run_deamon;
 
 void signal_handler(int sig)
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
 		    CLONE_NEWNS | SIGCHLD, NULL);
 	if (pid == -1) {
-		perror("clone");
+		perror("kernel_clone");
 		goto fail;
 	}
 
@@ -175,6 +175,7 @@ int main(int argc, char *argv[])
 }
 
 /**
+ * WARNING: BUGS at run cp
  * flag:
  *     CONTAINER_DEAMON on container run
  *     CONTAINER_EXEC on container exec
@@ -243,44 +244,3 @@ int container_init_environ(int flag)
 	return -1;
 }
 
-int container_run_pidfile(const char *path, pid_t pid)
-{
-	int pidfile = open(path, O_WRONLY | O_CREAT, 0644);
-	if (write(pidfile, &pid, sizeof(pid_t)) < 0) {
-		perror("container_run_pidfile");
-		return -1;
-	}
-	close(pidfile);
-
-	return 0;
-}
-
-int container_exit_pidfile(const char *path)
-{
-	int pid = -1;
-	int pidfile = open(path, O_WRONLY | O_CREAT, 0644);
-	if (write(pidfile, &pid, sizeof(pid_t)) < 0) {
-		perror("container_exit_pidfile");
-		return -1;
-	}
-	close(pidfile);
-
-	return 0;
-}
-
-int container_get_pid()
-{
-	if (container_pid) {
-		return container_pid;
-	}
-
-	int pid, pidfile;
-
-	pidfile = open(PIDFILE, O_RDONLY);
-	read(pidfile, &pid, sizeof(pid_t));
-
-	container_pid = pid;
-	close(pidfile);
-
-	return pid;
-}

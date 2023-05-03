@@ -2,6 +2,10 @@
 #define CONTAINER_CGROUP_H
 
 #include <container.h>
+#include <c_cgroup/cpu.h>
+#include <c_cgroup/cpuacct.h>
+#include <c_cgroup/cpuset.h>
+#include <c_cgroup/memory.h>
 
 #define AUTO_CGROUP     "./scripts/cgroup_attach"
 
@@ -12,8 +16,8 @@
 
 /* container cpu limit: 30% */
 #define CPU_LIMIT 		30000
-/* container memory limit: 128M */
-#define MEMORY_LIMIT 	(1 << 27)
+/* container memory limit: 64M */
+#define MEMORY_LIMIT 	(1 << 26)
 /* container cpuset: 0-1, 2 core */
 #define CPUSET_LIMIT    0x0001
 /* container stack size: 1M */
@@ -43,6 +47,14 @@ enum cgroup_index {
 };
 
 extern char *auto_cpu_cgroup[];
+
+/* cgroup context */
+struct cgroup_context {
+	struct cpu_cgrp_ctx         cpu_ctx;
+	struct cpuset_cgrp_ctx 	    cpuset_ctx;
+	struct mem_cgrp_ctx         memory_ctx;
+	struct cpuacct_cgrp_ctx     cpuacct_ctx;
+};
 
 int cgroup_init_container_cgrp(pid_t pid);
 

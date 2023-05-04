@@ -1,5 +1,5 @@
 SOURCES = $(wildcard src/*.c)
-OBJECTS = $(SOURCES:.c=.o)
+OBJECTS = $(patsubst src/%.c, target/%.o, $(SOURCES))
 INCLUDE = -I $(PWD)/include -I /usr/include/cjson/
 LIBS    = -lcjson
 DEFINES = -DNO_NSUSER -DDEBUG_INFO
@@ -21,9 +21,8 @@ all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	gcc $(DEFINES) $^ -o $(OUT_DIR)/$@ $(LIBS)
-	fd -eo -egch -X rm {}
 
-src/%.o: src/%.c
+target/%.o: src/%.c
 	gcc $(DEFINES) $(FLAGS) $(INCLUDE) -c $< -o $@ $(LIBS)
 
 run:

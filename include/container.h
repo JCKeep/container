@@ -7,6 +7,7 @@
 #include <sched.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <signal.h>
 #include <dirent.h>

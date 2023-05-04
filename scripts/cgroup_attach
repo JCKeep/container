@@ -6,42 +6,42 @@ memory_limit=$3
 cpuset_limit=$4
 
 # cpu cgroup
-if [ -d "/sys/fs/cgroup/cpu/my_cpu_cgroup" ]; then
-    touch /sys/fs/cgroup/cpu/my_cpu_cgroup
-else
-    sudo mkdir /sys/fs/cgroup/cpu/my_cpu_cgroup
-fi
+# if [ -d "/sys/fs/cgroup/cpu/my_cpu_cgroup" ]; then
+#     touch /sys/fs/cgroup/cpu/my_cpu_cgroup
+# else
+#     sudo mkdir /sys/fs/cgroup/cpu/my_cpu_cgroup
+# fi
 
-echo $cpu_limit > /sys/fs/cgroup/cpu/my_cpu_cgroup/cpu.cfs_quota_us
-echo 1024 > /sys/fs/cgroup/cpu/my_cpu_cgroup/cpu.shares
-echo $pid > /sys/fs/cgroup/cpu/my_cpu_cgroup/tasks
+# echo $cpu_limit > /sys/fs/cgroup/cpu/my_cpu_cgroup/cpu.cfs_quota_us
+# echo 1024 > /sys/fs/cgroup/cpu/my_cpu_cgroup/cpu.shares
+# echo $pid > /sys/fs/cgroup/cpu/my_cpu_cgroup/tasks
 
 # cpuacct cgroup
-if [ -d "/sys/fs/cgroup/cpuacct/my_cpuacct_cgroup" ]; then
-    touch /sys/fs/cgroup/cpuacct/my_cpuacct_cgroup
-else
-    sudo mkdir /sys/fs/cgroup/cpuacct/my_cpuacct_cgroup
-fi
+# if [ -d "/sys/fs/cgroup/cpuacct/my_cpuacct_cgroup" ]; then
+#     touch /sys/fs/cgroup/cpuacct/my_cpuacct_cgroup
+# else
+#     sudo mkdir /sys/fs/cgroup/cpuacct/my_cpuacct_cgroup
+# fi
 
-echo $pid > /sys/fs/cgroup/cpuacct/my_cpuacct_cgroup/tasks
+# echo $pid > /sys/fs/cgroup/cpuacct/my_cpuacct_cgroup/tasks
 
 # memory cgroup
-if [ -d "/sys/fs/cgroup/memory/my_memory_cgroup" ]; then
-    touch /sys/fs/cgroup/memory/my_memory_cgroup
-else
-    sudo mkdir /sys/fs/cgroup/memory/my_memory_cgroup
-fi
+# if [ -d "/sys/fs/cgroup/memory/my_memory_cgroup" ]; then
+#     touch /sys/fs/cgroup/memory/my_memory_cgroup
+# else
+#     sudo mkdir /sys/fs/cgroup/memory/my_memory_cgroup
+# fi
 
-echo $memory_limit > /sys/fs/cgroup/memory/my_memory_cgroup/memory.limit_in_bytes
-echo $pid > /sys/fs/cgroup/memory/my_memory_cgroup/tasks
+# echo $memory_limit > /sys/fs/cgroup/memory/my_memory_cgroup/memory.limit_in_bytes
+# echo $pid > /sys/fs/cgroup/memory/my_memory_cgroup/tasks
 
 # cpuset cgroup
-if [ -d "/sys/fs/cgroup/cpuset/my_cpuset_cgroup" ]; then
-    touch /sys/fs/cgroup/cpuset/my_cpuset_cgroup
-else
-    sudo mkdir /sys/fs/cgroup/cpuset/my_cpuset_cgroup
-fi
+# if [ -d "/sys/fs/cgroup/cpuset/my_cpuset_cgroup" ]; then
+#     touch /sys/fs/cgroup/cpuset/my_cpuset_cgroup
+# else
+#     sudo mkdir /sys/fs/cgroup/cpuset/my_cpuset_cgroup
+# fi
 
-echo $cpuset_limit > /sys/fs/cgroup/cpuset/my_cpuset_cgroup/cpuset.cpus
-echo 0 > /sys/fs/cgroup/cpuset/my_cpuset_cgroup/cpuset.mems
-echo $pid > /sys/fs/cgroup/cpuset/my_cpuset_cgroup/tasks
+# echo $cpuset_limit > /sys/fs/cgroup/cpuset/my_cpuset_cgroup/cpuset.cpus
+# echo 0 > /sys/fs/cgroup/cpuset/my_cpuset_cgroup/cpuset.mems
+# echo $pid > /sys/fs/cgroup/cpuset/my_cpuset_cgroup/tasks

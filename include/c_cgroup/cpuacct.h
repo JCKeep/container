@@ -24,6 +24,12 @@ struct cpuacct_cgrp_ctx {
         };
         struct cgroup_module module;
     };
+
+    char name[128];
+
+    int enable;
 };
+
+int cgroup_cpuacct_ctx_init(struct cpu_cgrp_ctx *ctx);
 
 #endif

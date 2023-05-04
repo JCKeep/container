@@ -29,8 +29,6 @@
 #ifndef DBG_H
 #define DBG_H
 
-#include <container.h>
-#include <config.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>

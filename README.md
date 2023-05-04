@@ -49,8 +49,8 @@
 
 - [x] 实现 make exec 进入容器 bash
 - [x] 使用 OverlayFS 实现文件系统分层，让多个容器安全共享
-- [ ] 增加配置文件支持
-- [ ] 重构 namespace 模块
+- [x] 增加配置文件支持
+- [x] 重构 namespace 模块
 - [ ] 实现一个容器最小文件系统
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
 - [ ] 增加 net_namespace 支持 (Linux net 子系统过于复杂，将在7月份开始学习)

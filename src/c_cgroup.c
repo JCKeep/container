@@ -10,6 +10,21 @@ struct cgrp_ctx_modules global_cgrp_ctx_modules[] = {
 	 .module = CGRP_CPU_MODULE,
 	 .offset = offsetof(struct cgroup_context, cpu_ctx),
 	  },
+	{
+	 .name = "cpuset",
+	 .module = CGRP_CPUSET_MODULE,
+	 .offset = offsetof(struct cgroup_context, cpuset_ctx),
+	  },
+	{
+	 .name = "memory",
+	 .module = CGRP_MEM_MODULE,
+	 .offset = offsetof(struct cgroup_context, memory_ctx),
+	  },
+	{
+	 .name = "cpuacct",
+	 .module = CGRP_CPUACCT_MODULE,
+	 .offset = offsetof(struct cgroup_context, cpuacct_ctx),
+	  },
 	{ }
 };
 
@@ -106,7 +121,7 @@ static int cgrp_ctx_modules(struct cgroup_context *ctx,
 	while (p->name != NULL) {
 		cJSON *cf = cJSON_GetObjectItem(st->json, p->name);
 		if (cf == NULL) {
-			printf("no cpu cgroup config\n");
+			printf("no %s cgroup config\n", p->name);
 			goto next;
 		}
 
@@ -171,6 +186,27 @@ int cgroup_ctx_init(struct cgroup_context *ctx)
 	ctx->attach = cgrp_ctx_attach;
 
 	ret = cgroup_cpu_ctx_init(&ctx->cpu_ctx);
+	if (ret < 0) {
+		BUG();
+		return -1;
+	}
+
+	/** 
+	 * 如果新增 cgroup 模块，在下面进行初始化
+	 */
+	ret = cgroup_cpuset_ctx_init(&ctx->cpuset_ctx);
+	if (ret < 0) {
+		BUG();
+		return -1;
+	}
+
+	ret = cgroup_mem_ctx_init(&ctx->memory_ctx);
+	if (ret < 0) {
+		BUG();
+		return -1;
+	}
+
+	ret = cgroup_cpuacct_ctx_init(&ctx->cpuacct_ctx);
 	if (ret < 0) {
 		BUG();
 		return -1;

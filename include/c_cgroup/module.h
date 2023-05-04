@@ -5,7 +5,7 @@
 #include <c_cgroup.h>
 
 struct cgroup_module {
-	/* init cgroup ctx by default value */
+    /* init cgroup ctx by default value */
     int (*init)(struct cgroup_context *ctx);
     /* parse config file */
     int (*parse)(struct cgroup_context *ctx, struct config_parse_stat *stat);

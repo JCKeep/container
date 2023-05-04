@@ -4,67 +4,64 @@
 
 static int cgrp_mem_ctx_init(struct cgroup_context *_ctx)
 {
-    DIR *dir;
-    char buf[1024];
-    struct mem_cgrp_ctx *ctx = &_ctx->memory_ctx;
+	DIR *dir;
+	char buf[1024];
+	struct mem_cgrp_ctx *ctx = &_ctx->memory_ctx;
 
 	dbg("cgrp_mem_ctx_init");
 
-    snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s",
-		 ctx->name);
-    if (!dbg(dir = opendir(buf))) {
-        mkdir(buf, 0755);
-    } else {
-        closedir(dir);
-    }
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s", ctx->name);
+	if (!dbg(dir = opendir(buf))) {
+		mkdir(buf, 0755);
+	} else {
+		closedir(dir);
+	}
 
-    strcpy(ctx->name, MEMORY_CGROUP);
-    /* default: 64M */
-    ctx->limit_in_bytes = MEMORY_LIMIT;
-    /* why? */
-    ctx->tcp_limit_in_bytes = 9223372036854771712L;
-    ctx->clone_children = 1;
-    
+	strcpy(ctx->name, MEMORY_CGROUP);
+	/* default: 64M */
+	ctx->limit_in_bytes = MEMORY_LIMIT;
+	/* why? */
+	ctx->tcp_limit_in_bytes = 9223372036854771712L;
+	ctx->clone_children = 1;
 
-    return 0;
+	return 0;
 }
 
 static unsigned long parse_size(char *s)
 {
-    int len = strlen(s);
-    unsigned long base = 1, num = 0;
-    char *p = s, *q = s + len;
+	int len = strlen(s);
+	unsigned long base = 1, num = 0;
+	char *p = s, *q = s + len;
 
-    
-    while (!isalnum(*q)) {
-        q--;
-    }
+	while (!isalnum(*q)) {
+		q--;
+	}
 
-    if (isalpha(*q)) {
-        switch(*q) {
-        case 'M':
-        case 'm':
-            base = 1024 * 1024;
-            break;
-        case 'K':
-        case 'k':
-            base = 1024;
-            break;
-        case 'G':
-        case 'g':
-            base = 1024 * 1024 * 1024;
-            break;
-        default:
-            break;
-        }
-    }
+	if (isalpha(*q)) {
+		switch (*q) {
+		case 'M':
+		case 'm':
+			base = 1024 * 1024;
+			break;
+		case 'K':
+		case 'k':
+			base = 1024;
+			break;
+		case 'G':
+		case 'g':
+			base = 1024 * 1024 * 1024;
+			break;
+		default:
+			break;
+		}
+	}
 
-    while (!isdigit(*p)) {
-        p++;
-    }
+	while (!isdigit(*p)) {
+		p++;
+	}
 
-    num = strtoul(p, NULL, 10);
-    return num * base;
+	num = strtoul(p, NULL, 10);
+	return num * base;
 }
 
 static int cgrp_mem_ctx_parse(struct cgroup_context *_ctx,
@@ -74,27 +71,31 @@ static int cgrp_mem_ctx_parse(struct cgroup_context *_ctx,
 	cJSON *cf = stat->json, *ccf = NULL;
 	struct mem_cgrp_ctx *ctx = &_ctx->memory_ctx;
 
-    dbg("cgrp_mem_ctx_parse");
+	if (!(stat->module & (CGRP_MODULE | CGRP_MEM_MODULE))) {
+		perror("error parse handler");
+		BUG();
+		return -1;
+	}
 
-    ccf = cJSON_GetObjectItem(cf, "memory_limit");
+	ccf = cJSON_GetObjectItem(cf, "memory_limit");
 	if (ccf != NULL) {
 		ctx->limit_in_bytes = parse_size(ccf->valuestring);
 		dbg(ctx->limit_in_bytes);
 	}
 
-    ccf = cJSON_GetObjectItem(cf, "tcp_kmemory_limit");
+	ccf = cJSON_GetObjectItem(cf, "tcp_kmemory_limit");
 	if (ccf != NULL) {
 		ctx->tcp_limit_in_bytes = parse_size(ccf->valuestring);
 		dbg(ctx->tcp_limit_in_bytes);
 	}
 
-    ccf = cJSON_GetObjectItem(cf, "clone_children");
+	ccf = cJSON_GetObjectItem(cf, "clone_children");
 	if (ccf != NULL) {
 		ctx->clone_children = ccf->valueint;
 		dbg(ctx->clone_children);
 	}
 
-    return 0;
+	return 0;
 }
 
 static int __unused cgrp_mem_ctx_cgrpctl(struct cgroup_context *ctx,
@@ -105,17 +106,17 @@ static int __unused cgrp_mem_ctx_cgrpctl(struct cgroup_context *ctx,
 
 static int __unused cgrp_mem_ctx_attach(struct cgroup_context *_ctx)
 {
-    int ret = 0, fd;
+	int ret = 0, fd;
 	char buf[1024], opt[128];
 	struct mem_cgrp_ctx *ctx = &_ctx->memory_ctx;
 
-    memset(buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof(buf));
 	memset(opt, 0, sizeof(opt));
 
 	dbg("cgrp_mem_ctx_attach");
 
-    snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s/memory.limit_in_bytes",
-		 ctx->name);
+	snprintf(buf, sizeof(buf),
+		 CGROUP_SYS_CTRL "/memory/%s/memory.limit_in_bytes", ctx->name);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();
@@ -129,7 +130,8 @@ static int __unused cgrp_mem_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
-    snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s/memory.kmem.tcp.limit_in_bytes",
+	snprintf(buf, sizeof(buf),
+		 CGROUP_SYS_CTRL "/memory/%s/memory.kmem.tcp.limit_in_bytes",
 		 ctx->name);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
@@ -144,8 +146,8 @@ static int __unused cgrp_mem_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
-    snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s/cgroup.clone_children",
-		 ctx->name);
+	snprintf(buf, sizeof(buf),
+		 CGROUP_SYS_CTRL "/memory/%s/cgroup.clone_children", ctx->name);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();
@@ -159,7 +161,8 @@ static int __unused cgrp_mem_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
-	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s/tasks", ctx->name);
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s/tasks",
+		 ctx->name);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();
@@ -173,10 +176,10 @@ static int __unused cgrp_mem_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
-    return 0;
+	return 0;
 
-fail:
-    return -1;
+      fail:
+	return -1;
 }
 
 int cgroup_mem_ctx_init(struct cpu_cgrp_ctx *ctx)

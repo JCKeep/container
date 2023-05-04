@@ -99,7 +99,7 @@ int config_parse(struct container_config *conf)
 	return 0;
 }
 
-#ifdef TEST
+#ifdef CJSON_TEST
 void cJSON_test()
 {
 	FILE *fp = fopen("container.json", "r");

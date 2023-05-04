@@ -7,22 +7,22 @@ struct cgroup_context *global_cgrp_ctx = &ctx;
 struct cgrp_ctx_modules global_cgrp_ctx_modules[] = {
 	{
 	 .name = "cpu",
-	 .module = CGRP_CPU_MODULE,
+	 .module = CGRP_CPU_MODULE | CGRP_MODULE,
 	 .offset = offsetof(struct cgroup_context, cpu_ctx),
 	  },
 	{
 	 .name = "cpuset",
-	 .module = CGRP_CPUSET_MODULE,
+	 .module = CGRP_CPUSET_MODULE | CGRP_MODULE,
 	 .offset = offsetof(struct cgroup_context, cpuset_ctx),
 	  },
 	{
 	 .name = "memory",
-	 .module = CGRP_MEM_MODULE,
+	 .module = CGRP_MEM_MODULE | CGRP_MODULE,
 	 .offset = offsetof(struct cgroup_context, memory_ctx),
 	  },
 	{
 	 .name = "cpuacct",
-	 .module = CGRP_CPUACCT_MODULE,
+	 .module = CGRP_CPUACCT_MODULE | CGRP_MODULE,
 	 .offset = offsetof(struct cgroup_context, cpuacct_ctx),
 	  },
 	{ }
@@ -109,14 +109,19 @@ static int cgrp_ctx_init(struct cgroup_context *ctx)
 	return 0;
 }
 
-static int cgrp_ctx_modules(struct cgroup_context *ctx,
-			    struct config_parse_stat *st)
+static int cgrp_ctx_parse(struct cgroup_context *ctx,
+			  struct config_parse_stat *st)
 {
 	int ret = 0;
 	char *base_module = ctx;
 	struct cgroup_module *module;
 	struct cgrp_ctx_modules *p = global_cgrp_ctx_modules;
 	struct config_parse_stat nst;
+
+	if (!(st->module & CGRP_MODULE)) {
+		perror("error parse handler");
+		goto fail;
+	}
 
 	while (p->name != NULL) {
 		cJSON *cf = cJSON_GetObjectItem(st->json, p->name);
@@ -166,7 +171,7 @@ static int cgrp_ctx_attach(struct cgroup_context *ctx)
 			goto fail;
 		}
 
-next:
+	      next:
 		p++;
 	}
 
@@ -182,18 +187,18 @@ int cgroup_ctx_init(struct cgroup_context *ctx)
 
 	memset(ctx, 0, sizeof(struct cgroup_context));
 	ctx->init = cgrp_ctx_init;
-	ctx->parse = cgrp_ctx_modules;
+	ctx->parse = cgrp_ctx_parse;
 	ctx->attach = cgrp_ctx_attach;
 
+	/** 
+	 * 如果新增 cgroup 模块，在下面进行初始化
+	 */
 	ret = cgroup_cpu_ctx_init(&ctx->cpu_ctx);
 	if (ret < 0) {
 		BUG();
 		return -1;
 	}
 
-	/** 
-	 * 如果新增 cgroup 模块，在下面进行初始化
-	 */
 	ret = cgroup_cpuset_ctx_init(&ctx->cpuset_ctx);
 	if (ret < 0) {
 		BUG();

@@ -4,34 +4,37 @@
 
 static int cgrp_cpuacct_ctx_init(struct cgroup_context *_ctx)
 {
-    DIR *dir;
-    char buf[1024];
-    struct cpuacct_cgrp_ctx *ctx = &_ctx->cpuacct_ctx;
+	DIR *dir;
+	char buf[1024];
+	struct cpuacct_cgrp_ctx *ctx = &_ctx->cpuacct_ctx;
 
 	dbg("cgrp_cpuacct_ctx_init");
 
-    snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuacct/%s",
-		 ctx->name);
-    if (!dbg(dir = opendir(buf))) {
-        mkdir(buf, 0755);
-    } else {
-        closedir(dir);
-    }
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuacct/%s", ctx->name);
+	if (!dbg(dir = opendir(buf))) {
+		mkdir(buf, 0755);
+	} else {
+		closedir(dir);
+	}
 
 	strcpy(ctx->name, CPUACCT_CGROUP);
-    ctx->enable = 1;
+	ctx->enable = 1;
 
-    return 0;
+	return 0;
 }
 
 static int cgrp_cpuacct_ctx_parse(struct cgroup_context *_ctx,
-			      struct config_parse_stat *stat)
+				  struct config_parse_stat *stat)
 {
-    int __unused ret = 0;
+	int __unused ret = 0;
 	cJSON *cf = stat->json, *ccf = NULL;
 	struct cpuacct_cgrp_ctx *ctx = &_ctx->cpuacct_ctx;
 
-	dbg("cgrp_cpu_ctx_parse");
+	if (!(stat->module & (CGRP_MODULE | CGRP_CPUACCT_MODULE))) {
+		perror("error parse handler");
+		BUG();
+		return -1;
+	}
 
 	ccf = cJSON_GetObjectItem(cf, "enable");
 	if (ccf != NULL) {
@@ -39,18 +42,18 @@ static int cgrp_cpuacct_ctx_parse(struct cgroup_context *_ctx,
 		dbg(ctx->enable);
 	}
 
-    return 0;
+	return 0;
 }
 
 static int __unused cgrp_cpuacct_ctx_cgrpctl(struct cgroup_context *ctx,
-					 unsigned long opt, void *data)
+					     unsigned long opt, void *data)
 {
 	return 0;
 }
 
 static int __unused cgrp_cpuacct_ctx_attach(struct cgroup_context *_ctx)
 {
-    int ret = 0, fd;
+	int ret = 0, fd;
 	char buf[1024], opt[128];
 	struct cpuacct_cgrp_ctx *ctx = &_ctx->cpuacct_ctx;
 
@@ -59,11 +62,12 @@ static int __unused cgrp_cpuacct_ctx_attach(struct cgroup_context *_ctx)
 
 	dbg("cgrp_cpuacct_ctx_attach");
 
-    if (!ctx->enable) {
-        return 0;
-    }
+	if (!ctx->enable) {
+		return 0;
+	}
 
-	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuacct/%s/tasks", ctx->name);
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuacct/%s/tasks",
+		 ctx->name);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();
@@ -77,10 +81,10 @@ static int __unused cgrp_cpuacct_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
-    return 0;
+	return 0;
 
-fail:
-    return -1;
+      fail:
+	return -1;
 }
 
 int cgroup_cpuacct_ctx_init(struct cpu_cgrp_ctx *ctx)

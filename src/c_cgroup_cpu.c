@@ -5,24 +5,23 @@
 static int cgrp_cpu_ctx_init(struct cgroup_context *_ctx)
 {
 	DIR *dir;
-    char buf[1024];
-    struct cpu_cgrp_ctx *ctx = &_ctx->cpu_ctx;
+	char buf[1024];
+	struct cpu_cgrp_ctx *ctx = &_ctx->cpu_ctx;
 
 	dbg("cgrp_cpu_ctx_init");
 
-    snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpu/%s",
-		 ctx->name);
-    if (!dbg(dir = opendir(buf))) {
-        mkdir(buf, 0755);
-    } else {
-        closedir(dir);
-    }
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpu/%s", ctx->name);
+	if (!dbg(dir = opendir(buf))) {
+		mkdir(buf, 0755);
+	} else {
+		closedir(dir);
+	}
 
 	strcpy(ctx->name, CPU_CGROUP);
 	ctx->cfs_period_us = 100000;
 	ctx->cfs_quota_us = -1;
 	ctx->rt_period_us = 1000000;
-	ctx->rt_runtime_us = 95000;
+	ctx->rt_runtime_us = 950000;
 	ctx->shares = 1024;
 	ctx->clone_children = 1;
 	ctx->sane_behavior = 0;
@@ -38,7 +37,11 @@ static int cgrp_cpu_ctx_parse(struct cgroup_context *_ctx,
 	cJSON *cf = stat->json, *ccf = NULL;
 	struct cpu_cgrp_ctx *ctx = &_ctx->cpu_ctx;
 
-	dbg("cgrp_cpu_ctx_parse");
+	if (!(stat->module & (CGRP_MODULE | CGRP_CPU_MODULE))) {
+		perror("error parse handler");
+		BUG();
+		return -1;
+	}
 
 	ccf = cJSON_GetObjectItem(cf, "shares");
 	if (ccf != NULL) {

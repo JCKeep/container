@@ -3,9 +3,7 @@
         "cpu": {
             "shares": 128,
             "cfs_limit": 0.05,
-            "rt_limit": 0.80,
-            "clone_children": 1,
-            "sane_behavior": 1
+            "rt_limit": 0.80
         },
         "cpuset": {
             "cpus": "0-1,4",

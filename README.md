@@ -10,15 +10,15 @@
     $ make
     ```
 
-    ![image-20230502161446185](./assets/image-20230502161446185.png)
+    ![image-20230505125031996](./assets/image-20230505125031996.png)
 
     若要使用`Overlay FS`提供的文件系统分层及写时拷贝以保护主机文件系统安全及多容器共享文件系统，则可使用 `overlay` 选项进行编译
 
     ```shell
-    $ make FEATURES=overlay
+    $ make CONFIG_OVERLAY=y
     ```
 
-    ![image-20230502161639934](./assets/image-20230502161639934.png)
+    ![image-20230505125109330](./assets/image-20230505125109330.png)
 
 2. 运行容器
 
@@ -26,7 +26,7 @@
     $ make run
     ```
 
-    当没有任何输出则容器已经开始在后台运行了
+    ![image-20230505125137461](./assets/image-20230505125137461.png)
 
 3. 进入容器
 
@@ -34,7 +34,7 @@
     $ make exec
     ```
 
-    ![image-20230502161758432](./assets/image-20230502161758432.png)
+    ![image-20230505125204861](./assets/image-20230505125204861.png)
 
 这样我们就得到了一个运行在一个新的容器中的bash，这个容器与主机资源相互隔离，可以在`include/c_cgroup.h`中对容器资源进行限制，默认为 `cpu: 10%, memory: 64M, cpuset: 0-1, stack: 32K`，未来将增加配置文件支持，像Dockerfile及docker-compose.yml一样对容器进行定制化配置。
 
@@ -43,6 +43,36 @@
    ```shell
    $ make exit
    ```
+
+## 配置文件 container.json
+
+```json
+{
+    "cgroup": {
+        "cpu": {
+            "shares": 128,
+            "cfs_limit": 0.05,
+            "rt_limit": 0.80
+        },
+        "cpuset": {
+            "cpus": "0-1,4",
+            "load_balance": 0,
+            "cpu_exclusive": 1
+        },
+        "memory": {
+            "memory_limit": "64M",
+            "tcp_kmemory_limit": "1G"
+        },
+        "cpuacct": {
+            "enable": 1
+        }
+    },
+    "namespace": {
+
+    },
+    "test": "Hello World!\n"
+}
+```
 
 
 ## 待实现
@@ -58,9 +88,8 @@
 - [ ] 使用 OverlayFS 文件系统支持容器镜像
 - [ ] namespace 内核源码实现解析
 - [ ] cgroup 内核源码实现解析
-- [ ] 重构 cgroup 模块 (目前规模较小，无需重构)
+- [x] 重构 cgroup 模块 
 - [ ] **. . .**
-
 
 
 

@@ -2,17 +2,23 @@ SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst src/%.c, target/%.o, $(SOURCES))
 INCLUDE = -I $(PWD)/include -I /usr/include/cjson/
 LIBS    = -lcjson
-DEFINES = -DNO_NSUSER -DDEBUG_INFO
-FLAGS   = -O2 -Wall \
-	-Wno-incompatible-pointer-types \
+DEFINES = -DNO_NSUSER 
+FLAGS   = -Wno-incompatible-pointer-types \
 	-Wno-unused-result \
 	-Wno-unused-label \
 	-Wno-discarded-qualifiers
 OUT_DIR = $(PWD)/target/
 TARGET = container
 
-ifeq ($(FEATURES),overlay)
+ifeq ($(CONFIG_OVERLAY),y)
 	DEFINES += -DOVERLAY_ROOTFS 
+endif
+
+ifeq ($(CONFIG_DEBUG),y)
+	DEFINES += -DDEBUG_INFO
+	FLAGS += -g -O0 -Wall
+else
+	FLAGS += -O2 -w 
 endif
 
 all: $(TARGET)

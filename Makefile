@@ -2,7 +2,7 @@ SOURCES = $(wildcard src/*.c)
 OBJECTS = $(SOURCES:.c=.o)
 INCLUDE = -I $(PWD)/include -I /usr/include/cjson/
 LIBS    = -lcjson
-DEFINES = -DNO_NSUSER 
+DEFINES = -DNO_NSUSER -DDEBUG_INFO
 FLAGS   = -O2 -Wall \
 	-Wno-incompatible-pointer-types \
 	-Wno-unused-result \

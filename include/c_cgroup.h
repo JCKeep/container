@@ -6,6 +6,7 @@
 #include <c_cgroup/cpuacct.h>
 #include <c_cgroup/cpuset.h>
 #include <c_cgroup/memory.h>
+#include <c_cgroup/module.h>
 
 #define AUTO_CGROUP     "./scripts/cgroup_attach"
 
@@ -48,14 +49,43 @@ enum cgroup_index {
 
 extern char *auto_cpu_cgroup[];
 
+#define CGRP_MODULE (0x1 << 0)
+#define CGRP_SUBSYS_NUM 4
+
 /* cgroup context */
 struct cgroup_context {
 	struct cpu_cgrp_ctx         cpu_ctx;
 	struct cpuset_cgrp_ctx 	    cpuset_ctx;
 	struct mem_cgrp_ctx         memory_ctx;
 	struct cpuacct_cgrp_ctx     cpuacct_ctx;
+
+
+	/* init cgroup ctx by default value */
+    int (*init)(struct cgroup_context *ctx);
+	/* parse config file */
+    int (*parse)(struct cgroup_context *ctx, struct config_parse_stat *stat);
+    /* attach to /sys/fs/cgroup/[subsystem]/[my_cgroup] */
+    int (*attach)(struct cgroup_context *ctx);
 };
 
+extern struct cgroup_context *global_cgrp_ctx;
+
+struct cgrp_ctx_modules {
+	char *name;
+
+	/* data offset of cgroup context */
+	uintptr_t offset;
+
+	uint64_t module;
+
+	int (*parse)(struct cgroup_context *ctx, struct config_parse_stat *stat);
+
+	void *ctx;
+};
+
+extern struct cgrp_ctx_modules global_cgrp_ctx_modules[];
+
 int cgroup_init_container_cgrp(pid_t pid);
+int cgroup_ctx_init(struct cgroup_context *ctx);
 
 #endif

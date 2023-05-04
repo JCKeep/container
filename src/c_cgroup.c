@@ -1,4 +1,17 @@
 #include <c_cgroup.h>
+#include <config.h>
+
+static struct cgroup_context ctx;
+struct cgroup_context *global_cgrp_ctx = &ctx;
+
+struct cgrp_ctx_modules global_cgrp_ctx_modules[] = {
+	{
+	 .name = "cpu",
+	 .module = CGRP_CPU_MODULE,
+	 .offset = offsetof(struct cgroup_context, cpu_ctx),
+	  },
+	{ }
+};
 
 char *auto_cpu_cgroup[] = {
 	[0] = AUTO_CGROUP,
@@ -33,6 +46,142 @@ int cgroup_init_container_cgrp(pid_t pid)
 	default:
 		waitpid(_pid, NULL, 0);
 		break;
+	}
+
+	return 0;
+}
+
+static int cgrp_ctx_init(struct cgroup_context *ctx)
+{
+	int ret = 0;
+
+	if (ctx->cpu_ctx.init) {
+		ret = ctx->cpu_ctx.init(ctx);
+	}
+	if (ret < 0) {
+		perror("ctx->cpu_ctx.init(ctx)");
+		BUG();
+		return -1;
+	}
+
+	if (ctx->cpuacct_ctx.init) {
+		ret = ctx->cpuacct_ctx.init(ctx);
+	}
+	if (ret < 0) {
+		perror("ctx->cpuacct_ctx.init(ctx)");
+		BUG();
+		return -1;
+	}
+
+	if (ctx->cpuset_ctx.init) {
+		ret = ctx->cpuset_ctx.init(ctx);
+	}
+	if (ret < 0) {
+		perror("ctx->cpuset_ctx.init(ctx)");
+		BUG();
+		return -1;
+	}
+
+	if (ctx->memory_ctx.init) {
+		ret = ctx->memory_ctx.init(ctx);
+	}
+	if (ret < 0) {
+		perror("ctx->memory_ctx.init(ctx)");
+		BUG();
+		return -1;
+	}
+
+	return 0;
+}
+
+static int cgrp_ctx_modules(struct cgroup_context *ctx,
+			    struct config_parse_stat *st)
+{
+	int ret = 0;
+	char *base_module = ctx;
+	struct cgroup_module *module;
+	struct cgrp_ctx_modules *p = global_cgrp_ctx_modules;
+	struct config_parse_stat nst;
+
+	while (p->name != NULL) {
+		cJSON *cf = cJSON_GetObjectItem(st->json, p->name);
+		if (cf == NULL) {
+			printf("no cpu cgroup config\n");
+			goto next;
+		}
+
+		memcpy(&nst, st, sizeof(*st));
+		nst.json = cf;
+		nst.module = p->module;
+		nst.name = p->name;
+
+		dbg("cgrp_ctx_modules");
+		module = base_module + p->offset;
+		ret = module->parse(ctx, &nst);
+		if (ret < 0) {
+			perror("cgrp_ctx_modules");
+			goto fail;
+		}
+
+	      next:
+		p++;
+	}
+
+	return 0;
+
+      fail:
+	return -1;
+}
+
+static int cgrp_ctx_attach(struct cgroup_context *ctx)
+{
+	int __unused ret = 0;
+	char __unused buf[1024], *base = ctx;
+	struct cgroup_module *module;
+	struct cgrp_ctx_modules *p = global_cgrp_ctx_modules;
+
+	memset(buf, 0, sizeof(buf));
+
+	while (p->name != NULL) {
+		dbg("cgrp_ctx_attach");
+		module = base + p->offset;
+		ret = module->attach(ctx);
+
+		if (ret < 0) {
+			goto fail;
+		}
+
+next:
+		p++;
+	}
+
+	return 0;
+
+      fail:
+	return -1;
+}
+
+int cgroup_ctx_init(struct cgroup_context *ctx)
+{
+	int ret;
+
+	memset(ctx, 0, sizeof(struct cgroup_context));
+	ctx->init = cgrp_ctx_init;
+	ctx->parse = cgrp_ctx_modules;
+	ctx->attach = cgrp_ctx_attach;
+
+	ret = cgroup_cpu_ctx_init(&ctx->cpu_ctx);
+	if (ret < 0) {
+		BUG();
+		return -1;
+	}
+
+	if (ctx->init) {
+		ret = ctx->init(ctx);
+	}
+	if (ret < 0) {
+		BUG();
+		return -1;
 	}
 
 	return 0;

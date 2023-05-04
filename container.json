@@ -1,7 +1,11 @@
 {
     "cgroup": {
         "cpu": {
-            
+            "shares": 512,
+            "cfs_limit": 0.10,
+            "rt_limit": 0.80,
+            "clone_children": 1,
+            "sane_behavior": 1
         },
         "cpuset": {
 

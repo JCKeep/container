@@ -2,10 +2,12 @@
 #define CONTAINER_H
 
 #define _GNU_SOURCE
+#include <cJSON.h>
 #include <stdio.h>
 #include <sched.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdint.h>
 #include <signal.h>
 #include <dirent.h>
 #include <stdlib.h>
@@ -23,7 +25,7 @@
 #ifdef DEBUG_INFO
 #include <dbg.h>
 #else
-#define dbg(x) 
+#define dbg(x) ({x;})
 #endif
 
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"

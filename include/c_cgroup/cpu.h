@@ -1,15 +1,37 @@
 #ifndef CPU_CGROUP_H
 #define CPU_CGROUP_H
 
+#include <container.h>
+#include <c_cgroup.h>
+#include <c_cgroup/module.h>
+
+#define CGRP_CPU_MODULE (0x1 << 1)
 #define CFS_PERIOD_US 100000
 #define DEFAULT_SHARES 1024
 
+struct cgroup_module;
 struct cgroup_context;
+struct config_parse_stat;
 
 /**
  * cpu cgroup 配置
 */
 struct cpu_cgrp_ctx {
+    union {
+        struct {
+            /* init cgroup ctx by default value */
+            int (*init)(struct cgroup_context *ctx);
+            /* parse config file */
+            int (*parse)(struct cgroup_context *ctx, struct config_parse_stat *stat);
+            /* modify cgroup ctx */
+            int (*cgrpctl)(struct cgroup_context *ctx, unsigned long opt, void *data);
+            /* attach to /sys/fs/cgroup/[subsystem]/[my_cgroup] */
+            int (*attach)(struct cgroup_context *ctx);
+        };
+        struct cgroup_module module;
+    };
+    char name[128];
+
     /**
      * `cgroup.clone_children` 是 cgroup v2 控制组中的一个标志，用于控制子进程的行为。
      * 当设置 `cgroup.clone_children` 为 1 时，表示该 cgroup 中的进程 fork 出的子进程
@@ -35,6 +57,9 @@ struct cpu_cgrp_ctx {
     int cfs_period_us;
     int cfs_quota_us;
 
+    /**
+     * rt_runtime_us / rt_period_us: rt_throttling 最大cpu运行比
+    */
     int rt_period_us;
     int rt_runtime_us;
 
@@ -49,13 +74,8 @@ struct cpu_cgrp_ctx {
      *  CPU 的实际利用率等。
     */
     int shares;
-
-    /* init cgroup ctx by default value */
-    int (*init)(struct cgroup_context *ctx);
-    /* modify cgroup ctx */
-    int (*cgrpctl)(struct cgroup_context *ctx, unsigned long opt, void *data);
-    /* attach to /sys/fs/cgroup/[subsystem]/[my_cgroup] */
-    int (*attach)(struct cgroup_context *ctx);
 };
+
+int cgroup_cpu_ctx_init(struct cpu_cgrp_ctx *ctx);
 
 #endif

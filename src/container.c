@@ -1,4 +1,5 @@
 #include <container.h>
+#include <config.h>
 #include <c_cgroup.h>
 #include <c_namespace.h>
 
@@ -29,6 +30,15 @@ int container_deamon(void *arg)
 	pid_t pid = getpid();
 
 	container_init_signal();
+
+	if (config_init(global_config) < 0)
+		goto fail;
+
+	if (cgroup_ctx_init(global_cgrp_ctx) < 0)
+		goto fail;
+
+	if (config_parse(global_config) < 0)
+		goto fail;
 
 	if (cgroup_init_container_cgrp(pid) < 0)
 		goto fail;
@@ -76,6 +86,18 @@ int container_exec(int argc, char *argv[])
 	if (pid < 0) {
 		fprintf(stderr, "containerd not start\n");
 		return 0;
+	}
+
+	if (config_init(global_config) < 0) {
+		goto fail;
+	}
+
+	if (cgroup_ctx_init(global_cgrp_ctx) < 0) {
+		goto fail;
+	}
+
+	if (config_parse(global_config) < 0) {
+		goto fail;
 	}
 
 	if (cgroup_init_container_cgrp(getpid())) {
@@ -243,4 +265,3 @@ int container_init_environ(int flag)
 	BUG();
 	return -1;
 }
-

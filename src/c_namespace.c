@@ -10,10 +10,9 @@ struct namespace_map {
 
 #define DEFINE_NSMAP(_name, _flag) { .name = _name, .flags = _flag }
 
-
 #ifdef OVERLAY_ROOTFS
 
-static int overlayfs_handler(struct mount_args __unused *fs)
+static int overlayfs_handler(struct mount_args __unused * fs)
 {
 	int __unused ret;
 	DIR *dir = NULL;
@@ -45,20 +44,21 @@ static int overlayfs_handler(struct mount_args __unused *fs)
 }
 #endif
 
-
 /** minimal container filesystems to mount */
 const struct mount_args filesystems[] = {
 #ifdef OVERLAY_ROOTFS
 	[ROOTFS] = {
-		.name = "rootfs",
+		    .name = "rootfs",
 		    .source = "overlay",
 		    .target = ROOT,
 		    .filesystemtype = "overlay",
-			.flags = MS_MGC_VAL,
+		    .flags = MS_MGC_VAL,
 		    .mode = 0755,
-			.data = "lowerdir=" LOWER_DIR ",upperdir=" UPPER_DIR ",workdir=" WORK_DIR,
-			.handler = overlayfs_handler,
-	},
+		    .data =
+		    "lowerdir=" LOWER_DIR ",upperdir=" UPPER_DIR ",workdir="
+		    WORK_DIR,
+		    .handler = overlayfs_handler,
+		     },
 	[PROCFS] = {
 		    .name = "procfs",
 		    .source = "proc",
@@ -204,7 +204,7 @@ int namespace_init_container_filesystem(const struct mount_args *args)
 			goto fail;
 		}
 
-next:
+	      next:
 		fs++;
 	}
 

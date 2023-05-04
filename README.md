@@ -80,15 +80,16 @@
 - [x] 实现 make exec 进入容器 bash
 - [x] 使用 OverlayFS 实现文件系统分层，让多个容器安全共享
 - [x] 增加配置文件支持
-- [x] 重构 namespace 模块
-- [ ] 实现一个容器最小文件系统
+- [x] 重构 cgroup 模块
+- [x] 初步添加 Rust 支持
+- [ ] 重构 namespace 模块 
+- [ ] 使用 Rust 实现容器镜像打包功能，以获得安全性及开发效率
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
 - [ ] 增加 net_namespace 支持 (Linux net 子系统过于复杂，将在7月份开始学习)
 - [ ] 支持多个容器，实现管理多个容器的用户命令
 - [ ] 使用 OverlayFS 文件系统支持容器镜像
 - [ ] namespace 内核源码实现解析
 - [ ] cgroup 内核源码实现解析
-- [x] 重构 cgroup 模块 
 - [ ] **. . .**
 
 

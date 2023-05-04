@@ -1,13 +1,15 @@
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst src/%.c, target/%.o, $(SOURCES))
 INCLUDE = -I $(PWD)/include -I /usr/include/cjson/
-LIBS    = -lcjson
+LIBS    = -lcjson -larchive
 DEFINES = -DNO_NSUSER 
 FLAGS   = -Wno-incompatible-pointer-types \
 	-Wno-unused-result \
 	-Wno-unused-label \
-	-Wno-discarded-qualifiers
+	-Wno-discarded-qualifiers \
+	-std=gnu11 
 OUT_DIR = $(PWD)/target/
+RUST    = target/libcontainer_images.a
 TARGET = container
 
 ifeq ($(CONFIG_OVERLAY),y)
@@ -25,8 +27,13 @@ all: $(TARGET)
 
 .PHONY: fmt container clean run exec exit prepare
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(RUST) $(OBJECTS)
 	gcc $(DEFINES) $^ -o $(OUT_DIR)/$@ $(LIBS)
+
+$(RUST):
+	cargo build --release
+	cbindgen -lC -o include/bindings/bindings.h libs/container-images/src/lib.rs
+	cp target/release/libcontainer_images.a target/libcontainer_images.a
 
 target/%.o: src/%.c
 	gcc $(DEFINES) $(FLAGS) $(INCLUDE) -c $< -o $@ $(LIBS)
@@ -47,7 +54,7 @@ fmt:
 
 clean:
 	fd -eo -egch -X rm {}
-	rm -f $(OBJECTS) $(OUT_DIR)/$(TARGET)
+	rm -f $(OBJECTS) $(OUT_DIR)/$(TARGET) $(RUST)
 
 prepare:
 	./scripts/cJSON

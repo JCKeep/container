@@ -23,6 +23,11 @@
 #include <sys/mount.h>
 #include <stdatomic.h>
 
+#ifndef RUST_BINDING_H
+#define RUSR_BINDING_H
+#include <bindings/bindings.h>
+#endif
+
 #ifdef DEBUG_INFO
 #include <dbg.h>
 #else

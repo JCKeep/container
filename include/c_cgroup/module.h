@@ -4,6 +4,7 @@
 #include <container.h>
 #include <c_cgroup.h>
 
+/* cgroup module for parsing config */
 struct cgroup_module {
     /* init cgroup ctx by default value */
     int (*init)(struct cgroup_context *ctx);

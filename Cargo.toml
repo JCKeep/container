@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "libs/container-images"
+]
+
+[profile.release]
+lto = true
+opt-level = "s"

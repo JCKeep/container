@@ -6,7 +6,7 @@
             "rt_limit": 0.80
         },
         "cpuset": {
-            "cpus": "0-1,4",
+            "cpus": "4",
             "load_balance": 0,
             "cpu_exclusive": 1
         },

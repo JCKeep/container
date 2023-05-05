@@ -10,14 +10,14 @@ static int cgrp_mem_ctx_init(struct cgroup_context *_ctx)
 
 	dbg("cgrp_mem_ctx_init");
 
+	strcpy(ctx->name, MEMORY_CGROUP);
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s", ctx->name);
-	if (!dbg(dir = opendir(buf))) {
+	if (!(dir = opendir(buf))) {
 		mkdir(buf, 0755);
 	} else {
 		closedir(dir);
 	}
 
-	strcpy(ctx->name, MEMORY_CGROUP);
 	/* default: 64M */
 	ctx->limit_in_bytes = MEMORY_LIMIT;
 	/* why? */
@@ -161,8 +161,13 @@ static int __unused cgrp_mem_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
+#ifdef CGROUP_V1
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s/tasks",
 		 ctx->name);
+#else
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/memory/%s/cgroup.procs",
+		 ctx->name);
+#endif
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();

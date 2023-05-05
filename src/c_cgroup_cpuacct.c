@@ -10,14 +10,14 @@ static int cgrp_cpuacct_ctx_init(struct cgroup_context *_ctx)
 
 	dbg("cgrp_cpuacct_ctx_init");
 
+	strcpy(ctx->name, CPUACCT_CGROUP);
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuacct/%s", ctx->name);
-	if (!dbg(dir = opendir(buf))) {
+	if (!(dir = opendir(buf))) {
 		mkdir(buf, 0755);
 	} else {
 		closedir(dir);
 	}
 
-	strcpy(ctx->name, CPUACCT_CGROUP);
 	ctx->enable = 1;
 
 	return 0;
@@ -65,9 +65,13 @@ static int __unused cgrp_cpuacct_ctx_attach(struct cgroup_context *_ctx)
 	if (!ctx->enable) {
 		return 0;
 	}
-
+#ifdef CGROUP_V1
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuacct/%s/tasks",
 		 ctx->name);
+#else
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuacct/%s/cgroup.procs",
+		 ctx->name);
+#endif
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();

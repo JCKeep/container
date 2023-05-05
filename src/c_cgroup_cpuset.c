@@ -10,18 +10,19 @@ static int cgrp_cpuset_ctx_init(struct cgroup_context *_ctx)
 
 	dbg("cgrp_cpuset_ctx_init");
 
+	strcpy(ctx->name, CPUSET_CGROUP);
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuset/%s", ctx->name);
-	if (!dbg(dir = opendir(buf))) {
+	if (!(dir = opendir(buf))) {
 		mkdir(buf, 0755);
 	} else {
 		closedir(dir);
 	}
 
-	strcpy(ctx->name, CPUSET_CGROUP);
 	ctx->clone_children = 1;
 	ctx->sched_load_balance = 1;
 	ctx->cpu_exclusive = 1;
-	strcpy(ctx->cpus, "0-0");
+	ctx->cpu_mems = 0;
+	strcpy(ctx->cpus, "0");
 
 	return 0;
 }
@@ -61,6 +62,12 @@ static int cgrp_cpuset_ctx_parse(struct cgroup_context *_ctx,
 	if (ccf != NULL) {
 		ctx->cpu_exclusive = ccf->valueint;
 		dbg(ctx->cpu_exclusive);
+	}
+
+	ccf = cJSON_GetObjectItem(cf, "cpu_mems");
+	if (ccf != NULL) {
+		ctx->cpu_mems = ccf->valueint;
+		dbg(ctx->cpu_mems);
 	}
 
 	return 0;
@@ -129,6 +136,21 @@ static int __unused cgrp_cpuset_ctx_attach(struct cgroup_context *_ctx)
 	close(fd);
 
 	snprintf(buf, sizeof(buf),
+		 CGROUP_SYS_CTRL "/cpuset/%s/cpuset.mems", ctx->name);
+	fd = open(buf, O_WRONLY);
+	if (fd < 0) {
+		BUG();
+		goto fail;
+	}
+	snprintf(opt, sizeof(opt), "%d", ctx->cpu_mems);
+	ret = write(fd, opt, strlen(opt) + 1);
+	if (ret < 0) {
+		BUG();
+		goto fail;
+	}
+	close(fd);
+
+	snprintf(buf, sizeof(buf),
 		 CGROUP_SYS_CTRL "/cpuset/%s/cgroup.clone_children", ctx->name);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
@@ -143,8 +165,13 @@ static int __unused cgrp_cpuset_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
+#ifdef CGROUP_V1
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuset/%s/tasks",
 		 ctx->name);
+#else
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuset/%s/cgroup.procs",
+		 ctx->name);
+#endif
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();
@@ -153,6 +180,7 @@ static int __unused cgrp_cpuset_ctx_attach(struct cgroup_context *_ctx)
 	snprintf(opt, sizeof(opt), "%d", getpid());
 	ret = write(fd, opt, strlen(opt) + 1);
 	if (ret < 0) {
+		fprintf(stderr, "write: %s\n", strerror(errno));
 		BUG();
 		goto fail;
 	}

@@ -2,7 +2,7 @@ SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst src/%.c, target/%.o, $(SOURCES))
 INCLUDE = -I $(PWD)/include -I /usr/include/cjson/
 LIBS    = -lcjson -larchive
-DEFINES = -DNO_NSUSER 
+DEFINES = -DNO_NSUSER -DCGROUP_v1
 FLAGS   = -Wno-incompatible-pointer-types \
 	-Wno-unused-result \
 	-Wno-unused-label \
@@ -32,7 +32,7 @@ $(TARGET): $(RUST) $(OBJECTS)
 
 $(RUST):
 	cargo build --release
-	cbindgen -lC -o include/bindings/bindings.h libs/container-images/src/lib.rs
+	cbindgen -lC -o include/bindings/container_images.h libs/container-images/src/lib.rs
 	cp target/release/libcontainer_images.a target/libcontainer_images.a
 
 target/%.o: src/%.c

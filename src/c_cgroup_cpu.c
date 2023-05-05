@@ -10,14 +10,14 @@ static int cgrp_cpu_ctx_init(struct cgroup_context *_ctx)
 
 	dbg("cgrp_cpu_ctx_init");
 
+	strcpy(ctx->name, CPU_CGROUP);
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpu/%s", ctx->name);
-	if (!dbg(dir = opendir(buf))) {
-		mkdir(buf, 0755);
+	if (!(dir = opendir(buf))) {
+		mkdir(buf, 0744);
 	} else {
 		closedir(dir);
 	}
 
-	strcpy(ctx->name, CPU_CGROUP);
 	ctx->cfs_period_us = 100000;
 	ctx->cfs_quota_us = -1;
 	ctx->rt_period_us = 1000000;
@@ -165,7 +165,12 @@ static int __unused cgrp_cpu_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
+#ifdef CGROUP_V1
 	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpu/%s/tasks", ctx->name);
+#else
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpu/%s/cgroup.procs",
+		 ctx->name);
+#endif
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();

@@ -66,6 +66,9 @@ struct cpuset_cgrp_ctx {
      * 的设置。
      */
     int sched_load_balance;
+
+    /* importance, must use */
+    int cpu_mems;
 };
 
 int cgroup_cpuset_ctx_init(struct cpu_cgrp_ctx *ctx);

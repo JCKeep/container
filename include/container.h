@@ -25,7 +25,7 @@
 
 #ifndef RUST_BINDING_H
 #define RUSR_BINDING_H
-#include <bindings/bindings.h>
+#include <bindings/container_images.h>
 #endif
 
 #ifdef DEBUG_INFO
@@ -34,7 +34,11 @@
 #define dbg(x) ({x;})
 #endif
 
+#ifndef CGROUP_v1
+#define CGROUP_SYS_CTRL "/sys/fs/cgroup/unified"
+#else
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"
+#endif
 
 #ifndef CONTAINER_NAME 
 #define CONTAINER_NAME  "demo-container"

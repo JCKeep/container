@@ -222,6 +222,8 @@ int container_init_environ(int flag)
 	}
 
 	/**
+	 * BUGS here
+	 * 
 	 * vfork() use struct completion to promise
 	 * child complete or do exec first.
 	 * 
@@ -231,6 +233,7 @@ int container_init_environ(int flag)
 	 * }
 	 */
 #ifndef OVERLAY_ROOTFS
+#if 0
 	switch (vfork()) {
 	case -1:
 		perror("fork");
@@ -241,6 +244,7 @@ int container_init_environ(int flag)
 	default:
 		break;
 	}
+#endif
 #endif
 
 	for (p = environ; *p; ++p) {

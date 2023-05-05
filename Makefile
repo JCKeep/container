@@ -54,7 +54,7 @@ fmt:
 
 clean:
 	fd -eo -egch -X rm {}
-	rm -f $(OBJECTS) $(OUT_DIR)/$(TARGET) $(RUST)
+	rm -rf $(OUT_DIR)
 
 prepare:
 	./scripts/cJSON

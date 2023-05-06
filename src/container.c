@@ -73,7 +73,7 @@ int container_exec(int argc, char *argv[])
 	int pidfile, status;
 	pid_t pid;
 	const static char *container[] = {
-		"/bin/bash",
+		"/usr/bin/bash",
 		NULL,
 	};
 
@@ -112,13 +112,16 @@ int container_exec(int argc, char *argv[])
 		goto fail;
 	}
 
+	printf("\033[01;32menter container\033[0m\n");
 	switch ((pid = fork())) {
 	case -1:
 		perror("fork");
+		BUG();
 		goto fail;
 	case 0:
 		if (execvpe(container[0], container, environ) < 0) {
 			perror("execvpe container");
+			BUG();
 			goto fail;
 		}
 	default:
@@ -127,6 +130,7 @@ int container_exec(int argc, char *argv[])
 			fprintf(stderr,
 				"ERROR: container %d has been kill by signal %d\n",
 				pid, WTERMSIG(status));
+			BUG();
 			goto fail;
 		}
 	}
@@ -134,7 +138,6 @@ int container_exec(int argc, char *argv[])
 	return 0;
 
       fail:
-	BUG();
 	return -1;
 }
 

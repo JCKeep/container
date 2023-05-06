@@ -9,3 +9,5 @@ edition = "2021"
 crate-type = ["staticlib", "rlib"]
 
 [dependencies]
+tar = "0.4.38"
+libc = "0.2.142"

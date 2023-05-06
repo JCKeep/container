@@ -1,7 +1,7 @@
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst src/%.c, target/%.o, $(SOURCES))
 INCLUDE = -I $(PWD)/include -I /usr/include/cjson/
-LIBS    = -lcjson -larchive
+LIBS    = -lcjson 
 DEFINES = -DNO_NSUSER -DCGROUP_v1
 FLAGS   = -Wno-incompatible-pointer-types \
 	-Wno-unused-result \
@@ -10,10 +10,14 @@ FLAGS   = -Wno-incompatible-pointer-types \
 	-std=gnu11 
 OUT_DIR = $(PWD)/target/
 RUST    = target/libcontainer_images.a
-TARGET = container
+TARGET  = container
 
 ifeq ($(CONFIG_OVERLAY),y)
 	DEFINES += -DOVERLAY_ROOTFS 
+endif
+
+ifeq ($(CONFIG_IMAGE),y)
+	DEFINES += -DIMAGE_SUPPORT
 endif
 
 ifeq ($(CONFIG_DEBUG),y)
@@ -54,7 +58,7 @@ fmt:
 
 clean:
 	fd -eo -egch -X rm {}
-	rm -rf $(OUT_DIR)
+	rm -rf $(OUT_DIR)/*.o $(OUT_DIR)/$(TARGET) $(RUST)
 
 prepare:
 	./scripts/cJSON

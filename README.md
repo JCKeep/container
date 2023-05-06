@@ -83,7 +83,7 @@
 - [x] 重构 cgroup 模块
 - [x] 初步添加 Rust 支持
 - [ ] 重构 namespace 模块 
-- [ ] 使用 Rust 实现容器镜像打包功能，以获得安全性及开发效率
+- [ ] 实现镜像打包功能
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
 - [ ] 增加 net_namespace 支持 (Linux net 子系统过于复杂，将在7月份开始学习)
 - [ ] 支持多个容器，实现管理多个容器的用户命令

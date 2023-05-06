@@ -55,8 +55,12 @@ const struct mount_args filesystems[] = {
 		    .flags = MS_MGC_VAL,
 		    .mode = 0755,
 		    .data =
+#ifndef IMAGE_SUPPORT
 		    "lowerdir=" LOWER_DIR ",upperdir=" UPPER_DIR ",workdir="
 		    WORK_DIR,
+#else
+			"lowerdir=" LOWER_DIR ":/tmp/lower1,upperdir=" UPPER_DIR ",workdir=" WORK_DIR,
+#endif
 		    .handler = overlayfs_handler,
 		     },
 	[PROCFS] = {

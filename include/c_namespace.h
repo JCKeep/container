@@ -8,7 +8,11 @@
 
 #ifdef OVERLAY_ROOTFS
 
+#ifndef IMAGE_SUPPORT
 #define LOWER_DIR "/"
+#else
+#define LOWER_DIR "/root/D/kernel/demo-container/images/ubuntu_latest/diff"
+#endif
 #define UPPER_DIR "/tmp/upper"
 #define WORK_DIR  "/tmp/work"
 
@@ -50,6 +54,9 @@ struct mount_args {
 	unsigned long flags;
 	mode_t mode;
 	void *data;
+
+	/* use by mount_handler */
+	void *private_data;
 	mount_handler handler;
 };
 

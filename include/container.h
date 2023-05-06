@@ -61,6 +61,7 @@
 #define __alias(name) __attribute__((alias(name)))
 #define __aligned(n) __attribute__((aligned(n)))
 #define __constructor __attribute__((constructor))
+#define __bitwise __attribute__((bitwise))
 
 int deamon();
 int container_get_pid();

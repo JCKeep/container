@@ -7,26 +7,30 @@
 1. 编译
 
     ```shell
-    $ make
+    $ make CONFIG_OVERLAY=y CONFIG_IMAGE=y
     ```
 
-    ![image-20230505130300173](./assets/image-20230505130300173.png)
+    ![image-20230509221036909](./assets/image-20230509221036909.png)
 
-    若要使用`Overlay FS`提供的文件系统分层及写时拷贝以保护主机文件系统安全及多容器共享文件系统，则可使用 `overlay` 选项进行编译
-
-    ```shell
-    $ make CONFIG_OVERLAY=y
-    ```
-
-    ![image-20230505130332475](./assets/image-20230505130332475.png)
+    `CONFIG_OVERLAY`与`CONFIG_IMAGE`编译选项用来编译时启用OverlayFS及镜像支持，需一起使用。
 
 2. 运行容器
 
     ```shell
-    $ make run
+    $ ./target/container run [image]
     ```
 
-    ![image-20230505125137461](./assets/image-20230505125137461.png)
+    `image`为镜像名称，镜像位于`images`目录下，可使用已有镜像，也可使用`container build [image]`自己编写`Dockerfile`构建镜像。
+
+    例：基于`ubuntu`构建`redis`镜像
+
+    ```dockerfile
+    FROM ubuntu_latest
+    
+    RUN /usr/bin/apt update
+    
+    RUN /usr/bin/apt install -y redis
+    ```
 
 3. 进入容器
 
@@ -83,11 +87,11 @@
 - [x] 重构 cgroup 模块
 - [x] 初步添加 Rust 支持
 - [ ] 重构 namespace 模块 
-- [ ] 实现镜像打包功能
+- [x] 使用 OverlayFS 文件系统支持容器镜像
+- [x] 实现镜像打包功能
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
 - [ ] 增加 net_namespace 支持 (Linux net 子系统过于复杂，将在7月份开始学习)
 - [ ] 支持多个容器，实现管理多个容器的用户命令
-- [ ] 使用 OverlayFS 文件系统支持容器镜像
 - [ ] namespace 内核源码实现解析
 - [ ] cgroup 内核源码实现解析
 - [ ] **. . .**

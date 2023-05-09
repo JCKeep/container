@@ -46,7 +46,7 @@ int container_deamon(void *arg)
 	if (container_init_environ(CONTAINER_DEAMON) < 0)
 		goto fail;
 
-	if (namespace_init_container_filesystem(filesystems) < 0)
+	if (namespace_init_container_filesystem(filesystems, NULLFS) < 0)
 		goto fail;
 
 	if (namespace_init_container_symlinks(symlinks) < 0)
@@ -218,6 +218,12 @@ int container_init_environ(int flag)
 #endif
 
 	if (setenv("color_prompt", "yes", 1) < 0)
+		goto fail;
+
+	if (setenv
+	    ("PATH",
+	     "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+	     1) < 0)
 		goto fail;
 
 	if (flag & CONTAINER_EXEC) {

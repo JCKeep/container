@@ -13,8 +13,9 @@
 #else
 #define LOWER_DIR "/root/D/kernel/demo-container/images/ubuntu_latest/diff"
 #endif
-#define UPPER_DIR "/tmp/upper"
-#define WORK_DIR  "/tmp/work"
+#define MERGE_DIR  "/root/D/kernel/demo-container/run/merge"
+#define UPPER_DIR "/root/D/kernel/demo-container/run/upper"
+#define WORK_DIR  "/root/D/kernel/demo-container/run/work"
 
 #endif /* OVERLAY_ROOTFS */
 
@@ -64,7 +65,7 @@ extern const char *symlinks[];
 extern const struct mount_args filesystems[];
 
 int namespace_init_container_symlinks(const char *links[]);
-int namespace_init_container_filesystem(const struct mount_args *args);
+int namespace_init_container_filesystem(const struct mount_args *args, int len);
 int namespace_attach_to_container(pid_t pid);
 
 /* not sure */

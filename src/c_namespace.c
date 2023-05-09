@@ -59,7 +59,8 @@ const struct mount_args filesystems[] = {
 		    "lowerdir=" LOWER_DIR ",upperdir=" UPPER_DIR ",workdir="
 		    WORK_DIR,
 #else
-			"lowerdir=" LOWER_DIR ":/tmp/lower1,upperdir=" UPPER_DIR ",workdir=" WORK_DIR,
+		    "lowerdir=/tmp/lower1:" LOWER_DIR ",upperdir=" UPPER_DIR
+		    ",workdir=" WORK_DIR,
 #endif
 		    .handler = overlayfs_handler,
 		     },
@@ -70,6 +71,13 @@ const struct mount_args filesystems[] = {
 		    .filesystemtype = "proc",
 		    .mode = 0555,
 		     },
+	[DEVFS] = {
+		   .name = "devfs",
+		   .source = "udev",
+		   .target = ROOT "/dev",
+		   .filesystemtype = "devtmpfs",
+		   .mode = 0755,
+		    },
 	[SYSFS] = {
 		   .name = "sysfs",
 		   .source = "sysfs",
@@ -174,10 +182,10 @@ int namespace_init_container_symlinks(const char *links[])
 }
 
 /* mount given filesystems */
-int namespace_init_container_filesystem(const struct mount_args *args)
+int namespace_init_container_filesystem(const struct mount_args *args, int len)
 {
 	int ret = 0;
-	const struct mount_args *fs = args, *end = &args[NULLFS];
+	const struct mount_args *fs = args, *end = &args[len];
 
 	while (fs != end) {
 		if (!fs->target || !fs->source) {

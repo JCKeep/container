@@ -1,6 +1,6 @@
 # CONTAINER
 
-一个基于 Linux Namespace & Cgroup 的简易容器
+一个基于 Namespace, Cgroup 及 OverlayFS 的轻量级 Linux 容器 
 
 ## 如何使用
 

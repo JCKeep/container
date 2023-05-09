@@ -612,7 +612,7 @@ static inline int dbg_format_backtrace_addr2line(void **addresses_pp,
 #ifdef DBG_ADDR2LINE
 
     char exe[256];
-    char command[384];
+    char container_image_builder[384];
     ssize_t size;
     int res;
     int i;
@@ -633,7 +633,7 @@ static inline int dbg_format_backtrace_addr2line(void **addresses_pp,
                  "addr2line -f -p -e %s %p",
                  &exe[0],
                  ((void *)(((uintptr_t)(addresses_pp[i])) - 1)));
-        command[sizeof(command) - 1] = '\0';
+        container_image_builder[sizeof(command) - 1] = '\0';
 
         res = system(&command[0]);
 

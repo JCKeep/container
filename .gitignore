@@ -2,6 +2,8 @@ target/*
 run/*
 cJSON/*
 images/ubuntu_latest
+images/ubuntu_redis
+images/nginx
 scripts/net_namespace_attach
 scripts/net_namespace_init
 busybox-1.33.0*

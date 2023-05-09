@@ -15,13 +15,16 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+#include <sys/un.h>
 #include <pidfile.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/mman.h>
+#include <sys/epoll.h>
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <stdatomic.h>
+#include <sys/socket.h>
 
 #ifndef RUST_BINDING_H
 #define RUSR_BINDING_H
@@ -48,6 +51,9 @@
 #define ROOT "/tmp/" CONTAINER_NAME
 #endif
 
+#define CONTAINER_UNIX_SOCK "/root/D/kernel/demo-container/run/sock"
+#define IMAGES_DIR "/root/D/kernel/demo-container/images"
+
 #ifndef HAVE_BUG
 #define BUG() do { \
 	fprintf(stderr, "BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
@@ -62,6 +68,16 @@
 #define __aligned(n) __attribute__((aligned(n)))
 #define __constructor __attribute__((constructor))
 #define __bitwise __attribute__((bitwise))
+
+
+struct container_image_builder {
+	int argc;
+	char **argv;
+	int layers;
+	char images[5][256];
+	char target_image[256];
+};
+
 
 int deamon();
 int container_get_pid();

@@ -12,33 +12,79 @@ struct namespace_map {
 
 #ifdef OVERLAY_ROOTFS
 
-static int overlayfs_handler(struct mount_args __unused * fs)
+static int overlayfs_pre_handler(struct mount_args __unused * fs)
 {
 	int __unused ret;
 	DIR *dir = NULL;
+	struct container_image_builder *cmd = fs->private_data;
+	char buf[2048], lower[1024], upper[128], work[128];
+	char *dupper = UPPER_DIR;
+	char *dwork = WORK_DIR;
 
-	if (!(dir = opendir(LOWER_DIR))) {
-		fprintf(stderr, "lowerdir not exist\n");
-		return -1;
-	} else {
-		closedir(dir);
+	if (cmd != NULL) {
+		goto images;
 	}
 
-	if (!(dir = opendir(UPPER_DIR))) {
-		ret = mkdir(UPPER_DIR, 0755);
+      merge:
+	if (!(dir = opendir(dupper))) {
+		ret = mkdir(dupper, 0755);
 	} else {
 		dbg("dir exist");
 		closedir(dir);
 	}
 
-	if (!(dir = opendir(WORK_DIR))) {
-		ret = mkdir(WORK_DIR, 0755);
+	if (!(dir = opendir(dwork))) {
+		ret = mkdir(dwork, 0755);
 	} else {
 		dbg("dir exist");
 		closedir(dir);
 	}
 
 	dbg("overlay");
+	return 0;
+
+      images:
+	switch (cmd->layers) {
+	case 1:
+		snprintf(lower, sizeof(lower), "%s/diff", cmd->images[0]);
+		break;
+	case 2:
+		snprintf(lower, sizeof(lower), "%s/diff:%s/diff",
+			 cmd->images[0], cmd->images[1]);
+		break;
+	case 3:
+		snprintf(lower, sizeof(lower), "%s/diff:%s/diff:%s/diff",
+			 cmd->images[0], cmd->images[1], cmd->images[2]);
+		break;
+	default:
+		snprintf(lower, sizeof(lower), "%s/diff",
+			 "/root/D/kernel/demo-container/images/ubuntu_latest");
+		break;
+	}
+
+	if (cmd->target_image[0] == '\0') {
+		snprintf(upper, sizeof(upper), "%s/upper", cmd->images[0]);
+		snprintf(work, sizeof(work), "%s/work", cmd->images[0]);
+	} else {
+		mkdir(cmd->target_image, 0755);
+		snprintf(upper, sizeof(upper), "%s/diff", cmd->target_image);
+		snprintf(work, sizeof(work), "%s/work", cmd->target_image);
+	}
+	snprintf(buf, sizeof(buf), "lowerdir=%s,upperdir=%s,workdir=%s", lower,
+		 upper, work);
+
+	fs->data = strdup(buf);
+	dupper = upper;
+	dwork = work;
+
+	goto merge;
+}
+
+static int overlayfs_post_handler(struct mount_args __unused * fs)
+{
+	if (fs->private_data) {
+		free(fs->data);
+	}
 
 	return 0;
 }
@@ -62,7 +108,8 @@ const struct mount_args filesystems[] = {
 		    "lowerdir=/tmp/lower1:" LOWER_DIR ",upperdir=" UPPER_DIR
 		    ",workdir=" WORK_DIR,
 #endif
-		    .handler = overlayfs_handler,
+		    .pre_handler = overlayfs_pre_handler,
+		    .post_handler = overlayfs_post_handler,
 		     },
 	[PROCFS] = {
 		    .name = "procfs",
@@ -200,8 +247,8 @@ int namespace_init_container_filesystem(const struct mount_args *args, int len)
 #endif
 		}
 
-		if (fs->handler) {
-			ret = fs->handler(fs);
+		if (fs->pre_handler) {
+			ret = fs->pre_handler(fs);
 		}
 
 		if (ret < 0) {
@@ -213,6 +260,14 @@ int namespace_init_container_filesystem(const struct mount_args *args, int len)
 		     fs->data) < 0) {
 			fprintf(stderr, "mount %s: %s\n", fs->name,
 				strerror(errno));
+			goto fail;
+		}
+
+		if (fs->post_handler) {
+			ret = fs->post_handler(fs);
+		}
+
+		if (ret < 0) {
 			goto fail;
 		}
 

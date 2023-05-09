@@ -40,6 +40,9 @@ enum filesystem_type {
 	USRFS,
 	ETCFS,
 	VARFS,
+	MOUNT_1,
+	MOUNT_2,
+	MOUNT_3,
 	/* tag for end */
 	NULLFS,
 };
@@ -58,7 +61,8 @@ struct mount_args {
 
 	/* use by mount_handler */
 	void *private_data;
-	mount_handler handler;
+	mount_handler pre_handler;
+	mount_handler post_handler;
 };
 
 extern const char *symlinks[];

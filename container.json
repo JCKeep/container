@@ -1,8 +1,8 @@
 {
     "cgroup": {
         "cpu": {
-            "shares": 128,
-            "cfs_limit": 0.01,
+            "shares": 1024,
+            "cfs_limit": 0.75,
             "rt_limit": 0.80
         },
         "cpuset": {
@@ -11,7 +11,7 @@
             "cpu_exclusive": 1
         },
         "memory": {
-            "memory_limit": "64M",
+            "memory_limit": "128M",
             "tcp_kmemory_limit": "1G"
         },
         "cpuacct": {

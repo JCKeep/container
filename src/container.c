@@ -26,13 +26,14 @@ void container_init_signal()
 }
 
 static char run_image[256];
-static struct container_image_builder  anon;
-static struct container_image_builder* cmd = &anon;
+static struct container_image_builder anon;
+static struct container_image_builder *cmd = &anon;
 
-static int build_container_image_env(const char* image, struct container_image_builder* c)
+static int build_container_image_env(const char *image,
+				     struct container_image_builder *c)
 {
-	FILE* fp;
-	char  buf[256];
+	FILE *fp;
+	char buf[256];
 
 	snprintf(buf, sizeof(buf), IMAGES_DIR "/%s/layer", image);
 	fp = fopen(buf, "r");
@@ -47,7 +48,7 @@ static int build_container_image_env(const char* image, struct container_image_b
 	return 0;
 }
 
-int container_run(void* arg)
+int container_run(void *arg)
 {
 	pid_t pid = getpid();
 	struct mount_args image_filesystems[NULLFS];
@@ -92,16 +93,16 @@ int container_run(void* arg)
 
 	return 0;
 
-fail:
+      fail:
 	BUG();
 	exit(EXIT_FAILURE);
 }
 
-int container_exec(int argc, char* argv[])
+int container_exec(int argc, char *argv[])
 {
 	int pidfile, status;
 	pid_t pid;
-	const static char* container[] = {
+	const static char *container[] = {
 		"/usr/bin/bash",
 		NULL,
 	};
@@ -166,14 +167,12 @@ int container_exec(int argc, char* argv[])
 
 	return 0;
 
-fail:
+      fail:
 	return -1;
 }
 
-
-
 /** container run images */
-static int container_run_command(void* arg)
+static int container_run_command(void *arg)
 {
 	pid_t pid = getpid();
 	struct mount_args image_filesystems[NULLFS];
@@ -218,22 +217,24 @@ static int container_run_command(void* arg)
 
 	return 0;
 
-fail:
+      fail:
 	BUG();
 	exit(EXIT_FAILURE);
 }
 
-static void container_image_prebuild(FILE *fp, struct container_image_builder* c, const char* image)
+static void container_image_prebuild(FILE * fp,
+				     struct container_image_builder *c,
+				     const char *image)
 {
 	char buf[256];
-	FILE  *fpl;
+	FILE *fpl;
 
 	// fp = fopen("Dockerfile", "r");
 	fgets(buf, sizeof(buf), fp);
 	sscanf(buf, "FROM %s", c->images[0]);
 	snprintf(buf, sizeof(buf), IMAGES_DIR "/%s/layer", c->images[0]);
 	snprintf(c->target_image, sizeof(c->target_image), IMAGES_DIR "/%s",
-		image);
+		 image);
 
 	fpl = fopen(buf, "r");
 	fscanf(fpl, "%d", &c->layers);
@@ -244,7 +245,8 @@ static void container_image_prebuild(FILE *fp, struct container_image_builder* c
 	fclose(fpl);
 }
 
-static int container_image_build_confirm(struct container_image_builder* c, const char *image_name)
+static int container_image_build_confirm(struct container_image_builder *c,
+					 const char *image_name)
 {
 	char buf[256];
 	FILE *fp;
@@ -265,7 +267,7 @@ static int container_image_build_confirm(struct container_image_builder* c, cons
 	return 0;
 }
 
-static int container_build_image(int argc, char* argv[])
+static int container_build_image(int argc, char *argv[])
 {
 	enum dockerfile_cmd {
 		FROM = 0,
@@ -273,7 +275,7 @@ static int container_build_image(int argc, char* argv[])
 		COPY,
 	} state = 0;
 	int eof, fd;
-	char* stack, buf[256], *dockerfile;
+	char *stack, buf[256], *dockerfile;
 	FILE *fp;
 	pid_t pid;
 	struct stat st;
@@ -282,12 +284,11 @@ static int container_build_image(int argc, char* argv[])
 	container_image_prebuild(fp, cmd, argv[2]);
 
 	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE
-		| MAP_ANONYMOUS, -1, 0);
+		     | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
 		perror("mmap container stack vm_area");
 		goto fail;
 	}
-
 #ifdef FEATURES___
 	fd = open("Dockerfile", O_RDONLY);
 	if (fd < 0) {
@@ -306,18 +307,16 @@ static int container_build_image(int argc, char* argv[])
 		BUG();
 		goto fail;
 	}
-
 #endif
 
-again:
+      again:
 	cmd->argc = 0;
-	cmd->argv = malloc(24 * sizeof(char*));
+	cmd->argv = malloc(24 * sizeof(char *));
 	while ((eof = fscanf(fp, "%s", buf)) != EOF) {
 		if (!strcmp("RUN", buf)) {
 			if (cmd->argc) {
 				break;
-			}
-			else {
+			} else {
 				continue;
 			}
 		}
@@ -328,8 +327,8 @@ again:
 	cmd->argv[cmd->argc] = NULL;
 
 	pid = clone(container_run_command, stack + STACK_SIZE,
-		CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
-		CLONE_NEWNS | SIGCHLD, NULL);
+		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
+		    CLONE_NEWNS | SIGCHLD, NULL);
 	if (pid == -1) {
 		perror("kernel_clone");
 		goto fail;
@@ -355,7 +354,7 @@ again:
 
 	return 0;
 
-fail:
+      fail:
 	return -1;
 }
 
@@ -372,19 +371,17 @@ int container_exit()
 	return 0;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-	char* stack;
+	char *stack;
 	pid_t pid;
-	void* container = container_run;
+	void *container = container_run;
 
 	if (argc == 2 && !strcmp(argv[1], "exec")) {
 		return container_exec(argc, argv);
-	}
-	else if (argc == 2 && !strcmp(argv[1], "exit")) {
+	} else if (argc == 2 && !strcmp(argv[1], "exit")) {
 		return container_exit();
-	}
-	else if (argc > 2 && !strcmp(argv[1], "build")) {
+	} else if (argc > 2 && !strcmp(argv[1], "build")) {
 		return container_build_image(argc, argv);
 	}
 
@@ -392,18 +389,17 @@ int main(int argc, char* argv[])
 		// container_run_deamon = 1;
 		strcpy(run_image, argv[2]);
 	}
-
 #if 0
 	if (argc > 3 && !strcmp(argv[1], "run") && !strcmp(argv[2], "images")) {
 		cmd->argc = argc - 3;
 		cmd->argv = &argv[3];
 		cmd->layers = 2;
 		strcpy(cmd->images[0],
-			"/root/D/kernel/demo-container/images/ubuntu_redis");
+		       "/root/D/kernel/demo-container/images/ubuntu_redis");
 		strcpy(cmd->images[1],
-			"/root/D/kernel/demo-container/images/ubuntu_latest");
+		       "/root/D/kernel/demo-container/images/ubuntu_latest");
 		strcpy(cmd->target_image,
-			"/root/D/kernel/demo-container/images/image_build_test");
+		       "/root/D/kernel/demo-container/images/image_build_test");
 		container = container_run_command;
 	}
 #endif
@@ -414,15 +410,15 @@ int main(int argc, char* argv[])
 	}
 
 	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE
-		| MAP_ANONYMOUS, -1, 0);
+		     | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
 		perror("mmap container stack vm_area");
 		goto fail;
 	}
 
 	pid = clone(container, stack + STACK_SIZE,
-		CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
-		CLONE_NEWNS | SIGCHLD, NULL);
+		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
+		    CLONE_NEWNS | SIGCHLD, NULL);
 	if (pid == -1) {
 		perror("kernel_clone");
 		goto fail;
@@ -435,7 +431,7 @@ int main(int argc, char* argv[])
 
 	return 0;
 
-fail:
+      fail:
 	exit(EXIT_FAILURE);
 }
 
@@ -447,9 +443,9 @@ fail:
  */
 int container_init_environ(int flag)
 {
-	char** p;
+	char **p;
 #ifndef OVERLAY_ROOTFS
-	const static char* cmd[] = {
+	const static char *cmd[] = {
 		"/usr/bin/cp",
 		"scripts/.bashrc",
 		ROOT "/root/.bashrc",
@@ -461,9 +457,9 @@ int container_init_environ(int flag)
 		goto fail;
 
 	if (setenv
-	("PATH",
-		"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-		1) < 0)
+	    ("PATH",
+	     "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+	     1) < 0)
 		goto fail;
 
 	if (flag & CONTAINER_EXEC) {
@@ -497,7 +493,7 @@ int container_init_environ(int flag)
 #endif
 
 	for (p = environ; *p; ++p) {
-		char* s = strdup(*p);
+		char *s = strdup(*p);
 		if (!s)
 			goto fail;
 
@@ -511,10 +507,10 @@ int container_init_environ(int flag)
 		goto fail;
 	}
 
-ret:
+      ret:
 	return 0;
 
-fail:
+      fail:
 	BUG();
 	return -1;
 }

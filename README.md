@@ -4,9 +4,7 @@
 
 ## 如何使用
 
-<video width="640" height="360" controls>
-    <source src="./assets/container.mp4" type="video/mp4">
-</video>
+[![demo](./assets/image-20230509221036909.png)](./assets/container.mp4)
 
 1. 编译
 

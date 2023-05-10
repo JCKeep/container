@@ -21,7 +21,7 @@ jobs:
         with:
            toolchain: nightly
       - name: Build
-        run: cargo build
+        run: cargo build --release
       - name: Run tests
         run: cargo test it_works
 

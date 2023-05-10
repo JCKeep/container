@@ -1,37 +1,20 @@
-#!/bin/sh
+#!/bin/bash
 
-# Check if cjson is already installed
+# Check if cjson is installed
 if pkg-config --exists cjson; then
-    echo "Found cjson library using pkg-config."
+    echo "cJSON is already installed"
     exit 0
 fi
 
-# If cjson is not installed, download and install it
-echo "cjson library not found. Downloading and installing..."
+# If cjson is not installed, install it
+sudo apt-get update
+sudo apt-get install -y libjson-c-dev
 
-# Set version number and download URL
-CJSON_VERSION="1.7.14"
-CJSON_URL="https://github.com/DaveGamble/cJSON/archive/v${CJSON_VERSION}.tar.gz"
-
-# Download and extract cjson
-curl -L -o cjson.tar.gz "$CJSON_URL"
-tar -xf cjson.tar.gz
-cd cJSON-$CJSON_VERSION
-
-# Compile and install cjson
-make
-sudo make install
-
-# Clean up
-cd ..
-rm -rf cJSON-$CJSON_VERSION cjson.tar.gz
-
-# Check again if cjson is installed
+# Check if installation was successful
 if pkg-config --exists cjson; then
-    echo "cjson library installed successfully."
+    echo "cJSON has been installed successfully"
     exit 0
 else
-    echo "Error: failed to install cjson library."
+    echo "Error: failed to install cJSON library."
     exit 1
 fi
-

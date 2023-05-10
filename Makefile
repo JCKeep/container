@@ -48,7 +48,7 @@ target/%.o: src/%.c
 
 run:
 	@rm -rf /tmp/demo-container
-	@$(OUT_DIR)/$(TARGET) run ubuntu_redis
+	@$(OUT_DIR)/$(TARGET) run openjdk-17
 
 test:
 	@rm -rf /tmp/demo-container
@@ -56,7 +56,7 @@ test:
 
 build:
 	@rm -rf /tmp/demo-container
-	@$(OUT_DIR)/$(TARGET) build ubuntu_redis
+	@$(OUT_DIR)/$(TARGET) build openjdk-17
 
 exec:
 	@$(OUT_DIR)/$(TARGET) exec

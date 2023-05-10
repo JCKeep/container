@@ -509,6 +509,9 @@ int container_init_environ(int flag)
 	if (setenv("color_prompt", "yes", 1) < 0)
 		goto fail;
 
+	if (setenv("TZ", "Asia/Shanghai", 1) < 0)
+		goto fail;
+
 	if (setenv
 	    ("PATH",
 	     "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",

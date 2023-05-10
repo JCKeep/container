@@ -8,19 +8,21 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTUP_TOOLCHAIN: nightly
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Rust Nightly
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test it_works --verbose
+      - uses: actions/checkout@v2
+      - name: Set up Rust
+        uses: actions-rs/setup-rust@v1
+        with:
+          rust-version: nightly
+          profile: minimal
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test it_works --verbose
+

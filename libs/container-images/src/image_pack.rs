@@ -9,6 +9,7 @@ use flate2::{write::GzEncoder, Compression};
 
 use crate::{binding::IMAGES_DIR, r_str};
 
+/// add the image to a tar file
 pub fn pack_image(name: &str) -> io::Result<()> {
     let filep = format!("{}{}", name, ".tar");
 
@@ -24,6 +25,7 @@ pub fn pack_image(name: &str) -> io::Result<()> {
     Ok(())
 }
 
+/// use gzip compress the image
 pub fn gz_compress_image(name: &str) -> io::Result<()> {
     let path = format!("{}/{}", r_str!(IMAGES_DIR), name);
     let file = File::open(format!("{}{}", path, ".tar"))?;

@@ -10,6 +10,7 @@ pub extern "C" fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
+/// pack the image
 #[no_mangle]
 pub extern "C" fn rust_image_confirm(name: *const c_void) -> i32 {
     let s = unsafe { CStr::from_ptr(name.cast()).to_str().unwrap() };

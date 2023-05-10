@@ -7,6 +7,17 @@
 )]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
+/// Creates a new [`CStr`] from a string literal.
+///
+/// The string literal should not contain any `NUL` bytes.
+///
+/// # Examples
+///
+/// ```
+/// # use kernel::c_str;
+/// # use kernel::str::CStr;
+/// const MY_CSTR: &CStr = c_str!("My awesome CStr!");
+/// ```
 #[macro_export]
 macro_rules! c_str {
     ($str:expr) => {{
@@ -19,6 +30,16 @@ macro_rules! c_str {
     }};
 }
 
+/// Creates a new [`&str`] from a const c string binding with bindgen.
+///
+/// # Examples
+///
+/// ```
+/// # use kernel::c_str;
+/// # use kernel::str::CStr;
+/// // binding::DATA type is [u8; n]
+/// const MY_CSTR: &str = r_str!(binding::DATA);
+/// ```
 #[macro_export]
 macro_rules! r_str {
     ($str:expr) => {{

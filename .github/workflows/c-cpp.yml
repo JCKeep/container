@@ -19,9 +19,7 @@ jobs:
       - name: Install Rust Nightly
         uses: actions-rs/toolchain@v1
         with:
-           toolchain: nightly-2023-01-07
-      - name: Set Rust Toolchain
-        run: rustup default nightly-2023-01-07
+           toolchain: nightly
       - name: Build
         run: cargo build
       - name: Run tests

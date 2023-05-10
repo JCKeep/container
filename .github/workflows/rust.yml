@@ -20,6 +20,8 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
            toolchain: nightly-2023-01-07
+      - name: Set Rust Toolchain
+        run: rustup override set nightly-2023-01-07
       - name: Build
         run: cargo build
       - name: Run tests

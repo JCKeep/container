@@ -3,7 +3,7 @@ run/*
 cJSON/*
 data/*
 images/ubuntu_latest
-images/ubuntu_redis
+images/redis
 images/nginx
 images/openjdk-17
 scripts/net_namespace_attach

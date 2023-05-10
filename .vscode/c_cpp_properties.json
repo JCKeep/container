@@ -6,7 +6,10 @@
                 "${workspaceFolder}/**",
                 "/usr/include/cjson"
             ],
-            "defines": [],
+            "defines": [
+                "OVERLAY_ROOTFS=1",
+                "IMAGE_SUPPORT=1"
+            ],
             "compilerPath": "/usr/bin/gcc-9",
             "cStandard": "c17",
             "cppStandard": "c++17",

@@ -1,8 +1,8 @@
 {
     "cgroup": {
         "cpu": {
-            "shares": 1024,
-            "cfs_limit": 0.80,
+            "shares": 512,
+            "cfs_limit": 0.30,
             "rt_limit": 0.80
         },
         "cpuset": {

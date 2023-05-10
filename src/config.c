@@ -80,7 +80,7 @@ int config_parse(struct container_config *conf)
 		st.name = "cgroup";
 		st.module = CGRP_MODULE;
 
-		dbg("parsing cinfig");
+		dbg("parsing config");
 
 		ret = st.conf->ctx->parse(st.conf->ctx, &st);
 		if (ret < 0) {

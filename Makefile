@@ -48,15 +48,14 @@ target/%.o: src/%.c
 
 run:
 	@rm -rf /tmp/demo-container
-	@$(OUT_DIR)/$(TARGET) run openjdk-17
+	@$(OUT_DIR)/$(TARGET) run nginx
 
 test:
-	@rm -rf /tmp/demo-container
-	@$(OUT_DIR)/$(TARGET) run images /usr/bin/apt install -y nginx
+	gcc $(LINKS) $(DEFINES) $(FLAGS) $(INCLUDE) -c test.c -o test.o $(LIBS)
 
 build:
 	@rm -rf /tmp/demo-container
-	@$(OUT_DIR)/$(TARGET) build openjdk-17
+	@$(OUT_DIR)/$(TARGET) build nginx
 
 exec:
 	@$(OUT_DIR)/$(TARGET) exec

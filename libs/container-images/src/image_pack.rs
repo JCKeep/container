@@ -7,25 +7,25 @@ use std::{
 
 use flate2::{write::GzEncoder, Compression};
 
-pub fn pack_image(name: &str) -> io::Result<()> {
-    let path = format!("/root/D/kernel/demo-container/images/{}", name);
-    let filep = format!("{}{}", path, ".tar");
-    let file = OpenOptions::new()
-        .write(true)
-        .read(true)
-        .truncate(true)
-        .create(true)
-        .open(filep)?;
-    let mut a = tar::Builder::new(file);
+use crate::{binding::IMAGES_DIR, r_str};
 
-    let _ = a.append_dir_all(name, path);
-    a.finish()?;
+pub fn pack_image(name: &str) -> io::Result<()> {
+    let filep = format!("{}{}", name, ".tar");
+
+    use std::process::Command;
+    let mut child = Command::new("tar")
+        .current_dir(r_str!(IMAGES_DIR))
+        .arg("-cvf")
+        .arg(filep)
+        .arg(name)
+        .spawn()?;
+    child.wait()?;
 
     Ok(())
 }
 
 pub fn gz_compress_image(name: &str) -> io::Result<()> {
-    let path = format!("/root/D/kernel/demo-container/images/{}", name);
+    let path = format!("{}/{}", r_str!(IMAGES_DIR), name);
     let file = File::open(format!("{}{}", path, ".tar"))?;
 
     let image_path = format!("{}{}", path, ".tar.gz");

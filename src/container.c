@@ -259,11 +259,12 @@ static int container_image_build_confirm(struct container_image_builder *c,
 		fprintf(fp, "%s\n", c->images[i]);
 	}
 
+	close(fp);
+
 	if (rust_image_confirm(image_name) < 0) {
 		return -1;
 	}
 
-	close(fp);
 	return 0;
 }
 

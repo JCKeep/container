@@ -8,7 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTUP_TOOLCHAIN: nightly
+  RUSTUP_TOOLCHAIN: nightly-2023-01-07
 
 jobs:
   build:

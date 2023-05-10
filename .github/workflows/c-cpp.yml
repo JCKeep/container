@@ -35,6 +35,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: configure
-      run: chmod +x ./configure && ./configure
+      run: apt install -y libcjson-dev
     - name: make
       run: make CONFIG_OVERLAY=y CONFIG_IMAGE=y

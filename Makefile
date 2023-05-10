@@ -31,7 +31,7 @@ endif
 
 all: $(TARGET)
 
-.PHONY: fmt container clean run exec exit prepare test build
+.PHONY: fmt container clean run exec exit test build
 
 $(TARGET): $(OBJECTS)
 	cargo build --release
@@ -72,5 +72,3 @@ clean:
 	fd -eo -egch -X rm {}
 	rm -rf $(OUT_DIR)/*.o $(OUT_DIR)/$(TARGET) $(RUST)
 
-prepare:
-	./scripts/cJSON

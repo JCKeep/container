@@ -85,7 +85,7 @@ struct cgrp_ctx_modules {
 
 extern struct cgrp_ctx_modules global_cgrp_ctx_modules[];
 
-int cgroup_init_container_cgrp(pid_t pid);
+int __deprecated cgroup_init_container_cgrp(pid_t pid);
 int cgroup_ctx_init(struct cgroup_context *ctx);
 
 #endif

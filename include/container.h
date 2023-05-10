@@ -27,7 +27,7 @@
 #include <sys/socket.h>
 
 #ifndef RUST_BINDING_H
-#define RUSR_BINDING_H
+#define RUST_BINDING_H
 #include <bindings/container_images.h>
 #endif
 

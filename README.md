@@ -4,6 +4,10 @@
 
 ## 如何使用
 
+<video width="640" height="360" controls>
+    <source src="./assets/container.mp4" type="video/mp4">
+</video>
+
 1. 编译
 
     ```shell

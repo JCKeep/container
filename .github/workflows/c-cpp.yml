@@ -14,6 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: configure
-      run: ./confgure
+      run: ./configure
     - name: make
       run: make CONFIG_OVERLAY=y CONFIG_IMAGE=y

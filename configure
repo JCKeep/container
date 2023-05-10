@@ -10,7 +10,7 @@ fi
 sudo apt-get update
 sudo apt-get install -y libcjson-dev
 
-Check if installation was successful
+# Check if installation was successful
 if pkg-config --exists cjson; then
     echo "cJSON has been installed successfully"
     exit 0

@@ -1,6 +1,7 @@
 target/*
 run/*
 cJSON/*
+data/*
 images/ubuntu_latest
 images/ubuntu_redis
 images/nginx

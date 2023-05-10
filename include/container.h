@@ -51,6 +51,10 @@
 #define ROOT "/tmp/" CONTAINER_NAME
 #endif
 
+#ifndef DATA
+#define DATA "/root/D/kernel/demo-container/data"
+#endif
+
 #define CONTAINER_UNIX_SOCK "/root/D/kernel/demo-container/run/sock"
 #define IMAGES_DIR "/root/D/kernel/demo-container/images"
 

@@ -65,8 +65,8 @@ struct mount_args {
 	mount_handler post_handler;
 };
 
-extern const char *symlinks[];
-extern const struct mount_args filesystems[];
+extern char **symlinks;
+extern struct mount_args *filesystems;
 
 int namespace_init_container_symlinks(const char *links[]);
 int namespace_init_container_filesystem(const struct mount_args *args, int len);

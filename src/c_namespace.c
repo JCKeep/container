@@ -91,7 +91,7 @@ static int overlayfs_post_handler(struct mount_args __unused * fs)
 #endif
 
 /** minimal container filesystems to mount */
-const struct mount_args filesystems[] = {
+static struct mount_args ___filesystems[] = {
 #ifdef OVERLAY_ROOTFS
 	[ROOTFS] = {
 		    .name = "rootfs",
@@ -189,7 +189,7 @@ const struct mount_args filesystems[] = {
 };
 
 /**  */
-const char *symlinks[] = {
+const static char *___symlinks[] = {
 #ifndef OVERLAY_ROOTFS
 	/* from    ->      to */
 	"/usr/bin", "/bin",
@@ -200,6 +200,9 @@ const char *symlinks[] = {
 	/* tag for the end */
 	NULL, NULL,
 };
+
+char **symlinks = ___symlinks;
+struct mount_args *filesystems = ___filesystems;
 
 const static struct namespace_map ns_map[] = {
 	DEFINE_NSMAP("mnt", CLONE_NEWNS),

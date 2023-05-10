@@ -275,10 +275,17 @@ static int container_build_image(int argc, char *argv[])
 		COPY,
 	} state = 0;
 	int eof, fd;
-	char *stack, buf[256], *dockerfile;
+	char *stack, buf[256], path[256], *p, *item;
 	FILE *fp;
 	pid_t pid;
 	struct stat st;
+	static struct mount_args data = {
+		.name = "anon",
+		.source = DATA,
+		.target = ROOT "/data",
+		.flags = MS_BIND,
+		.mode = 0755,
+	};
 
 	fp = fopen("Dockerfile", "r");
 	container_image_prebuild(fp, cmd, argv[2]);
@@ -289,26 +296,68 @@ static int container_build_image(int argc, char *argv[])
 		perror("mmap container stack vm_area");
 		goto fail;
 	}
-#ifdef FEATURES___
-	fd = open("Dockerfile", O_RDONLY);
-	if (fd < 0) {
-		BUG();
-		return -1;
+
+	cmd->argc = 0;
+	cmd->argv = malloc(24 * sizeof(char *));
+      next:
+	while ((eof = fgets(buf, sizeof(buf), fp))) {
+		p = buf;
+		item = NULL;
+		while (isblank(*p)) {
+			p++;
+		}
+
+		dbg(p);
+
+		if (!strncmp("RUN", p, 3)) {
+			state = RUN;
+			p += 3;
+			goto run_;
+		} else if (!strncmp("COPY", p, 4)) {
+			state = COPY;
+			p += 4;
+			goto copy_;
+		} else {
+			state = 0;
+			continue;
+		}
+
+	      run_:
+		cmd->argc = 0;
+		item = strtok(p, " \t\n");
+		while (item) {
+			cmd->argv[cmd->argc++] = strdup(item);
+			item = strtok(NULL, " \t\n");
+		}
+
+		cmd->argv[cmd->argc] = NULL;
+		break;
+
+	      copy_:
+		cmd->argc = 0;
+		memcpy(&filesystems[MOUNT_1], &data, sizeof(data));
+
+		cmd->argv[cmd->argc++] = strdup("/usr/bin/cp");
+		item = strtok(p, " \t\n");
+		while (item) {
+			cmd->argv[cmd->argc++] = item;
+			item = strtok(NULL, " \t\n");
+		}
+		cmd->argv[cmd->argc] = NULL;
+
+		for (int i = 1; i < cmd->argc - 1; i++) {
+			snprintf(path, sizeof(path), "/data/%s", cmd->argv[i]);
+			cmd->argv[i] = strdup(path);
+		}
+		cmd->argv[cmd->argc - 1] = strdup(cmd->argv[cmd->argc - 1]);
+
+		break;
 	}
 
-	if (fstat(fd, &st) < 0) {
-		BUG();
-		return -1;
+	if (!eof) {
+		goto end;
 	}
-
-	dockerfile = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	if (dockerfile == MAP_FAILED) {
-		perror("mmap container stack vm_area");
-		BUG();
-		goto fail;
-	}
-#endif
-
+#if 0
       again:
 	cmd->argc = 0;
 	cmd->argv = malloc(24 * sizeof(char *));
@@ -325,7 +374,7 @@ static int container_build_image(int argc, char *argv[])
 		dbg(buf);
 	}
 	cmd->argv[cmd->argc] = NULL;
-
+#endif
 	pid = clone(container_run_command, stack + STACK_SIZE,
 		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
 		    CLONE_NEWNS | SIGCHLD, NULL);
@@ -340,15 +389,19 @@ static int container_build_image(int argc, char *argv[])
 		free(cmd->argv[i]);
 	}
 
-	if (eof != EOF) {
-		goto again;
-	}
+	if (eof) {
+		if (state == COPY) {
+			memset(&filesystems[MOUNT_1], 0,
+			       sizeof(struct mount_args));
+		}
 
+		goto next;
+	}
+      end:
 	if (container_image_build_confirm(cmd, argv[2]) < 0) {
 		return -1;
 	}
 
-	munmap(dockerfile, st.st_size);
 	free(cmd->argv);
 	close(fp);
 

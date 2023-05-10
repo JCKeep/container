@@ -75,7 +75,6 @@ dependencies = [
  "bindgen",
  "cc",
  "flate2",
- "lazy_static",
  "libc",
  "tar",
 ]

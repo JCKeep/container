@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
+
+//! String representations.
+
 #![allow(
     non_camel_case_types,
     non_snake_case,

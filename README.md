@@ -91,11 +91,11 @@
 - [ ] 重构 namespace 模块 
 - [x] 使用 OverlayFS 文件系统支持容器镜像
 - [x] 实现镜像打包功能
-- [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
-- [ ] 增加 net_namespace 支持 (Linux net 子系统过于复杂，将在7月份开始学习)
 - [ ] 支持多个容器，实现管理多个容器的用户命令
-- [ ] namespace 内核源码实现解析
-- [ ] cgroup 内核源码实现解析
+- [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
+- [ ] 增加 net_namespace 支持 (Linux net 子系统将在7月份开始学习)
+- [ ] 编写 namespace 内核源码文档
+- [ ] 编写 cgroup 内核源码实现文档
 - [ ] **. . .**
 
 

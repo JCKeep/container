@@ -6,14 +6,33 @@ on:
   pull_request:
     branches: [ "main" ]
 
-jobs:
-  build:
+env:
+  CARGO_TERM_COLOR: always
+  RUSTUP_TOOLCHAIN: nightly
 
+jobs:
+  rust:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust Nightly
+        uses: actions-rs/toolchain@v1
+        with:
+           toolchain: nightly-2023-01-07
+      - name: Set Rust Toolchain
+        run: rustup default nightly-2023-01-07
+      - name: Build
+        run: cargo build
+      - name: Run tests
+        run: cargo test it_works
+
+  container:
+    runs-on: ubuntu-latest
+    needs: rust
+    steps:
     - uses: actions/checkout@v3
     - name: configure
-      run: ./configure
+      run: chmod +x ./configure && ./configure
     - name: make
       run: make CONFIG_OVERLAY=y CONFIG_IMAGE=y

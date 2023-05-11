@@ -1,10 +1,8 @@
 # CONTAINER
 
-一个基于 Namespace, Cgroup 及 OverlayFS 的轻量级 Linux 容器 
+基于 Namespace, Cgroup 及 OverlayFS 的轻量级高性能 Linux 容器 
 
 ## 如何使用
-
-[![demo](./assets/image-20230509221036909.png)](./assets/container.mp4)
 
 1. 编译
 
@@ -88,10 +86,11 @@
 - [x] 增加配置文件支持
 - [x] 重构 cgroup 模块
 - [x] 初步添加 Rust 支持
-- [ ] 重构 namespace 模块 
 - [x] 使用 OverlayFS 文件系统支持容器镜像
 - [x] 实现镜像打包功能
-- [ ] 支持多个容器，实现管理多个容器的用户命令
+- [ ] 重构 namespace 模块 
+- [ ] 增加配置文件支持的选项
+- [ ] 实现容器后台管理 deamon 进程
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
 - [ ] 增加 net_namespace 支持 (Linux net 子系统将在7月份开始学习)
 - [ ] 编写 namespace 内核源码文档

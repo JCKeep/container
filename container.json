@@ -1,13 +1,13 @@
 {
     "cgroup": {
         "cpu": {
-            "shares": 512,
-            "cfs_limit": 0.30,
+            "shares": 1024,
+            "cfs_limit": 0.80,
             "rt_limit": 0.80
         },
         "cpuset": {
             "cpus": "4-5",
-            "load_balance": 0,
+            "load_balance": 1,
             "cpu_exclusive": 1
         },
         "memory": {
@@ -18,7 +18,13 @@
             "enable": 1
         }
     },
-    "namespace": {
+    "image": {
+
+    },
+    "mount": {
+
+    },
+    "net": {
 
     },
     "test": "Hello World!\n"

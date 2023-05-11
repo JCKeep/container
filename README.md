@@ -4,51 +4,61 @@
 
 ## 如何使用
 
-1. 编译
+### 编译
 
-    ```shell
-    $ make CONFIG_OVERLAY=y CONFIG_IMAGE=y
-    ```
+```shell
+$ make default
+```
 
-    ![image-20230509221036909](./assets/image-20230509221036909.png)
+![image-20230511203838546](./assets/image-20230511203838546.png)
 
-    `CONFIG_OVERLAY`与`CONFIG_IMAGE`编译选项用来编译时启用OverlayFS及镜像支持，需一起使用。
+![image-20230511203857634](./assets/image-20230511203857634.png)
 
-2. 运行容器
+`make default`会使用`CONFIG_OVERLAY`与`CONFIG_IMAGE`两个编译选项用来启用 OverlayFS 文件系统分层叠加和容器镜像的支持，需一起使用。
 
-    ```shell
-    $ ./target/container run [image]
-    ```
+### 运行容器
 
-    `image`为镜像名称，镜像位于`images`目录下，可使用已有镜像，也可使用`container build [image]`自己编写`Dockerfile`构建镜像。
+```shell
+$ ./target/container run [image]
+```
 
-    例：基于`ubuntu`构建`redis`镜像
+`image`为镜像名称，镜像位于`images`目录下，可使用已有镜像。
 
-    ```dockerfile
-    FROM ubuntu_latest
-    
-    RUN /usr/bin/apt update
-    
-    RUN /usr/bin/apt install -y redis
-    ```
+例：
 
-3. 进入容器
+![image-20230511200424008](./assets/image-20230511200424008.png)
 
-    ```shell
-    $ ./target/container exec
-    ```
+也可使用自己编写`Dockerfile` 指定基础镜像，并根据需求打包新的镜像。
 
-    ![image-20230505125204861](./assets/image-20230505125204861.png)
+例：基于 `ubuntu-latest` 构建 `redis` 镜像
 
-这样我们就得到了一个运行在一个新的容器中的bash，这个容器与主机资源相互隔离，可以在`include/c_cgroup.h`中对容器资源进行限制，默认为 `cpu: 10%, memory: 64M, cpuset: 0-1, stack: 32K`，未来将增加配置文件支持，像Dockerfile及docker-compose.yml一样对容器进行定制化配置。
+```dockerfile
+FROM ubuntu_latest
 
-4. 退出容器
+RUN /usr/bin/apt update
 
-   ```shell
-   $ make exit
-   ```
+RUN /usr/bin/apt install -y redis
+```
 
-## 配置文件 container.json
+使用 `container build [new image]` 进行镜像打包。
+
+![image-20230511201301697](./assets/image-20230511201301697.png)
+
+![image-20230511201332040](./assets/image-20230511201332040.png)
+
+然后我们就得到了一个新的镜像，新镜像位于目录 `images` 下，**所打包的镜像仅仅为最顶层镜像，因为底层镜像是共享的，采取镜像分层以减小镜像体积**。
+
+### 进入容器
+
+```shell
+$ ./target/container exec
+```
+
+![image-20230511200424008](./assets/image-20230511200424008.png)
+
+这样我们就得到了一个运行在一个新的容器中的 bash，这个容器与主机资源相互隔离，其资源限制可以在 `container.json` 文件中进行自定义配置。默认将采用 1 核 CPU，64M 虚拟内存，1M 栈空间，5% cpu使用上线，未来将加入更多特性。
+
+配置文件：
 
 ```json
 {
@@ -72,6 +82,57 @@
         }
     },
     "image": {
+		// 功能已实现，但未适配配置解析模块
+    },
+    "mount": {
+		// 功能已实现，但未适配配置解析模块
+    },
+    "net": {
+		// TODO
+    }
+}
+```
+
+### 退出容器
+
+容器为后台守护进程运行，若要停止运行，可以使用一下命令关闭守护进程。
+
+```shell
+$ ./target/container exit
+```
+
+
+
+## 容器镜像性能测试
+
+该测试仅仅为了验证在容器中运行并不损失性能。
+
+### nginx 镜像并发测试
+
+容器配置如下：
+
+```json
+{
+    "cgroup": {
+        "cpu": {
+            "shares": 2048,
+            "cfs_limit": 0.90,
+            "rt_limit": 0.80
+        },
+        "cpuset": {
+            "cpus": "4-5",
+            "load_balance": 0,
+            "cpu_exclusive": 1
+        },
+        "memory": {
+            "memory_limit": "128M",
+            "tcp_kmemory_limit": "64G"
+        },
+        "cpuacct": {
+            "enable": 1
+        }
+    },
+    "image": {
 
     },
     "mount": {
@@ -79,13 +140,33 @@
     },
     "net": {
 
-    },
-    "test": "Hello World!\n"
+    }
 }
 ```
 
+nginx 镜像配置： 128M 虚拟内存，独占 4 - 5 两个 cpu，并且禁止 cpu 负载均衡，并且为其限制最大 90% 的 cpu 使用上限 (仅仅可以使用 4-5 两个 cpu 的 90%，剩下 10% cpu 留给 top 命令及时监控 nginx)。
 
-## 待实现
+测试命令：
+
+```shell
+ab -k -n 1000000 -c 10000 http://localhost:80/test
+```
+
+![image-20230511202915784](./assets/image-20230511202915784.png)
+
+![image-20230511203325610](./assets/image-20230511203325610.png)
+
+双核，1000000个请求，10000并发量，**每秒处理请求数（QPS）为 141810**，综合多次测试，每秒请求数在13万至15万间波动，平均 QPS 14万。
+
+### redis 镜像并发测试
+
+配置同上，但仅使用 1核 cpu。
+
+![image-20230511205307538](./assets/image-20230511205307538.png)
+
+QPS 平均在 14 万左右。
+
+# **TODO**
 
 - [x] 实现 make exec 进入容器 bash
 - [x] 使用 OverlayFS 实现文件系统分层，让多个容器安全共享
@@ -95,13 +176,13 @@
 - [x] 使用 OverlayFS 文件系统支持容器镜像
 - [x] 实现镜像打包功能
 - [ ] 重构 namespace 模块 
-- [ ] 增加配置文件支持的选项
+- [ ] 增加新的配置文件支持
 - [ ] 实现容器后台管理 deamon 进程
-- [ ] 加入 user_namespace 保户主机文件安全 (目前我的WSL未开启userns，暂时跳过)
-- [ ] 增加 net_namespace 支持 (Linux net 子系统将在7月份开始学习)
+- [ ] 加入 user_namespace 保户主机文件安全 (目前我的 WSL 未开启 userns)
+- [ ] 增加 net_namespace 支持 
 - [ ] 编写 namespace 内核源码文档
 - [ ] 编写 cgroup 内核源码实现文档
+- [ ] bridge 网络模式
+- [ ] container 网络模式
 - [ ] **. . .**
-
-
 

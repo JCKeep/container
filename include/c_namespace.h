@@ -47,10 +47,10 @@ enum filesystem_type {
 	NULLFS,
 };
 
-struct mount_args;
-typedef int (*mount_handler)(struct mount_args *fs);
+struct image_mnt;
+typedef int (*mount_handler)(struct image_mnt *fs);
 
-struct mount_args {
+struct image_mnt {
 	const char *name;
 	const char *source;
 	const char *target;
@@ -66,10 +66,10 @@ struct mount_args {
 };
 
 extern char **symlinks;
-extern struct mount_args *filesystems;
+extern struct image_mnt *filesystems;
 
 int namespace_init_container_symlinks(const char *links[]);
-int namespace_init_container_filesystem(const struct mount_args *args, int len);
+int namespace_init_container_filesystem(const struct image_mnt *args, int len);
 int namespace_attach_to_container(pid_t pid);
 
 /* not sure */

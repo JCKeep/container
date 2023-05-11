@@ -31,7 +31,7 @@ endif
 
 all: $(TARGET)
 
-.PHONY: fmt container clean run exec exit test build
+.PHONY: default fmt container clean run exec exit test build
 
 $(TARGET): $(OBJECTS)
 	cargo build --release
@@ -65,9 +65,12 @@ exit:
 
 fmt:
 	fd '.*\.c' -X indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 {}
-	fd '.*\..*~' -X rm {}
+	@fd '.*\..*~' -X rm {}
+	@fd -ec -eh -ers -emd -x cat {} | wc -l
 
 clean:
 	fd -eo -egch -X rm {}
 	rm -rf $(OUT_DIR)/*.o $(OUT_DIR)/$(TARGET) $(RUST)
 
+default:
+	@make CONFIG_OVERLAY=y CONFIG_IMAGE=y

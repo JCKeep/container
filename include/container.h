@@ -47,6 +47,11 @@
 #define CONTAINER_NAME  "demo-container"
 #endif
 
+#ifndef STACK_SIZE
+/* container stack size: 1M */
+#define STACK_SIZE 		(1 << 20)
+#endif
+
 #ifndef ROOT
 #define ROOT "/tmp/" CONTAINER_NAME
 #endif
@@ -84,10 +89,7 @@ struct container_image_builder {
 
 
 int deamon();
-int container_get_pid();
 int container_init_environ(int flag);
-int container_exit_pidfile(const char *path);
-int container_run_pidfile(const char *path, pid_t pid);
 
 
 #endif

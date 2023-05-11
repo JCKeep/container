@@ -12,11 +12,11 @@ struct namespace_map {
 
 #ifdef OVERLAY_ROOTFS
 
-static int overlayfs_pre_handler(struct mount_args __unused * fs)
+static int overlayfs_pre_handler(struct image_mnt __unused * mnt)
 {
 	int __unused ret;
 	DIR *dir = NULL;
-	struct container_image_builder *cmd = fs->private_data;
+	struct container_image_builder *cmd = mnt->private_data;
 	char buf[2048], lower[1024], upper[128], work[128];
 	char *dupper = UPPER_DIR;
 	char *dwork = WORK_DIR;
@@ -73,17 +73,17 @@ static int overlayfs_pre_handler(struct mount_args __unused * fs)
 	snprintf(buf, sizeof(buf), "lowerdir=%s,upperdir=%s,workdir=%s", lower,
 		 upper, work);
 
-	fs->data = strdup(buf);
+	mnt->data = strdup(buf);
 	dupper = upper;
 	dwork = work;
 
 	goto merge;
 }
 
-static int overlayfs_post_handler(struct mount_args __unused * fs)
+static int overlayfs_post_handler(struct image_mnt __unused * mnt)
 {
-	if (fs->private_data) {
-		free(fs->data);
+	if (mnt->private_data) {
+		free(mnt->data);
 	}
 
 	return 0;
@@ -91,7 +91,7 @@ static int overlayfs_post_handler(struct mount_args __unused * fs)
 #endif
 
 /** minimal container filesystems to mount */
-static struct mount_args ___filesystems[] = {
+static struct image_mnt ___filesystems[] = {
 #ifdef OVERLAY_ROOTFS
 	[ROOTFS] = {
 		    .name = "rootfs",
@@ -202,7 +202,7 @@ const static char *___symlinks[] = {
 };
 
 char **symlinks = ___symlinks;
-struct mount_args *filesystems = ___filesystems;
+struct image_mnt *filesystems = ___filesystems;
 
 const static struct namespace_map ns_map[] = {
 	DEFINE_NSMAP("mnt", CLONE_NEWNS),
@@ -232,26 +232,26 @@ int namespace_init_container_symlinks(const char *links[])
 }
 
 /* mount given filesystems */
-int namespace_init_container_filesystem(const struct mount_args *args, int len)
+int namespace_init_container_filesystem(const struct image_mnt *args, int len)
 {
 	int ret = 0;
-	const struct mount_args *fs = args, *end = &args[len];
+	const struct image_mnt *mnt = args, *end = &args[len];
 
-	while (fs != end) {
-		if (!fs->target || !fs->source) {
+	while (mnt != end) {
+		if (!mnt->target || !mnt->source) {
 			goto next;
 		}
 
-		if (mkdir(fs->target, fs->mode) < 0) {
+		if (mkdir(mnt->target, mnt->mode) < 0) {
 #ifndef OVERLAY_ROOTFS
-			fprintf(stderr, "mkdir %s: %s\n", fs->target,
+			fprintf(stderr, "mkdir %s: %s\n", mnt->target,
 				strerror(errno));
 			goto fail;
 #endif
 		}
 
-		if (fs->pre_handler) {
-			ret = fs->pre_handler(fs);
+		if (mnt->pre_handler) {
+			ret = mnt->pre_handler(mnt);
 		}
 
 		if (ret < 0) {
@@ -259,15 +259,15 @@ int namespace_init_container_filesystem(const struct mount_args *args, int len)
 		}
 
 		if (mount
-		    (fs->source, fs->target, fs->filesystemtype, fs->flags,
-		     fs->data) < 0) {
-			fprintf(stderr, "mount %s: %s\n", fs->name,
+		    (mnt->source, mnt->target, mnt->filesystemtype, mnt->flags,
+		     mnt->data) < 0) {
+			fprintf(stderr, "mount %s: %s\n", mnt->name,
 				strerror(errno));
 			goto fail;
 		}
 
-		if (fs->post_handler) {
-			ret = fs->post_handler(fs);
+		if (mnt->post_handler) {
+			ret = mnt->post_handler(mnt);
 		}
 
 		if (ret < 0) {
@@ -275,7 +275,7 @@ int namespace_init_container_filesystem(const struct mount_args *args, int len)
 		}
 
 	      next:
-		fs++;
+		mnt++;
 	}
 
 	if (chroot(ROOT) < 0) {

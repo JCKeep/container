@@ -1,57 +1,31 @@
 #include <container.h>
 #include <config.h>
+#include <pidfile.h>
+#include <c_signal.h>
 #include <c_cgroup.h>
 #include <c_namespace.h>
 
-sigset_t mask;
+extern sigset_t mask;
 extern int container_pid;
 extern int container_exiting;
 extern int container_run_deamon;
-
-void signal_handler(int sig)
-{
-	container_exiting = 1;
-}
-
-void container_init_signal()
-{
-	sigemptyset(&mask);
-	sigaddset(&mask, SIGINT);
-	sigaddset(&mask, SIGSTOP);
-
-	sigprocmask(SIG_BLOCK, &mask, NULL);
-
-	signal(SIGINT, signal_handler);
-	signal(SIGSTOP, signal_handler);
-}
 
 static char run_image[256];
 static struct container_image_builder anon;
 static struct container_image_builder *cmd = &anon;
 
-static int build_container_image_env(const char *image,
-				     struct container_image_builder *c)
-{
-	FILE *fp;
-	char buf[256];
-
-	snprintf(buf, sizeof(buf), IMAGES_DIR "/%s/layer", image);
-	fp = fopen(buf, "r");
-
-	fscanf(fp, "%d", &c->layers);
-
-	for (int i = 0; i < c->layers; i++) {
-		fscanf(fp, "%s", c->images[i]);
-	}
-
-	fclose(fp);
-	return 0;
-}
+static int container_image_analyze_layer(const char *image,
+					 struct container_image_builder *c);
+static void container_image_prebuild(FILE * fp,
+				     struct container_image_builder *c,
+				     const char *image);
+static int container_image_build_confirm(struct container_image_builder *c,
+					 const char *image_name);
 
 int container_run(void *arg)
 {
 	pid_t pid = getpid();
-	struct mount_args image_filesystems[NULLFS];
+	struct image_mnt image_filesystems[NULLFS];
 
 	memcpy(image_filesystems, filesystems, sizeof(image_filesystems));
 
@@ -72,7 +46,7 @@ int container_run(void *arg)
 	if (container_init_environ(CONTAINER_DEAMON) < 0)
 		goto fail;
 
-	if (build_container_image_env(run_image, cmd) < 0)
+	if (container_image_analyze_layer(run_image, cmd) < 0)
 		goto fail;
 
 	image_filesystems[ROOTFS].private_data = cmd;
@@ -172,10 +146,10 @@ int container_exec(int argc, char *argv[])
 }
 
 /** container run images */
-static int container_run_command(void *arg)
+int container_run_command(void *arg)
 {
 	pid_t pid = getpid();
-	struct mount_args image_filesystems[NULLFS];
+	struct image_mnt image_filesystems[NULLFS];
 
 	memcpy(image_filesystems, filesystems, sizeof(image_filesystems));
 
@@ -222,52 +196,6 @@ static int container_run_command(void *arg)
 	exit(EXIT_FAILURE);
 }
 
-static void container_image_prebuild(FILE * fp,
-				     struct container_image_builder *c,
-				     const char *image)
-{
-	char buf[256];
-	FILE *fpl;
-
-	// fp = fopen("Dockerfile", "r");
-	fgets(buf, sizeof(buf), fp);
-	sscanf(buf, "FROM %s", c->images[0]);
-	snprintf(buf, sizeof(buf), IMAGES_DIR "/%s/layer", c->images[0]);
-	snprintf(c->target_image, sizeof(c->target_image), IMAGES_DIR "/%s",
-		 image);
-
-	fpl = fopen(buf, "r");
-	fscanf(fpl, "%d", &c->layers);
-	for (int i = 0; i < c->layers; i++) {
-		fscanf(fpl, "%s", c->images[i]);
-	}
-
-	fclose(fpl);
-}
-
-static int container_image_build_confirm(struct container_image_builder *c,
-					 const char *image_name)
-{
-	char buf[256];
-	FILE *fp;
-
-	snprintf(buf, sizeof(buf), "%s/layer", c->target_image);
-	fp = fopen(buf, "w");
-	fprintf(fp, "%d\n%s\n", c->layers + 1, c->target_image);
-
-	for (int i = 0; i < c->layers; i++) {
-		fprintf(fp, "%s\n", c->images[i]);
-	}
-
-	close(fp);
-
-	if (rust_image_confirm(image_name) < 0) {
-		return -1;
-	}
-
-	return 0;
-}
-
 static int container_build_image(int argc, char *argv[])
 {
 	enum dockerfile_cmd {
@@ -280,7 +208,7 @@ static int container_build_image(int argc, char *argv[])
 	FILE *fp;
 	pid_t pid;
 	struct stat st;
-	static struct mount_args data = {
+	static struct image_mnt data = {
 		.name = "anon",
 		.source = DATA,
 		.target = ROOT "/data",
@@ -291,6 +219,7 @@ static int container_build_image(int argc, char *argv[])
 	fp = fopen("Dockerfile", "r");
 	container_image_prebuild(fp, cmd, argv[2]);
 
+	/* mmap the container stack */
 	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE
 		     | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
@@ -393,7 +322,7 @@ static int container_build_image(int argc, char *argv[])
 	if (eof) {
 		if (state == COPY) {
 			memset(&filesystems[MOUNT_1], 0,
-			       sizeof(struct mount_args));
+			       sizeof(struct image_mnt));
 		}
 
 		goto next;
@@ -570,4 +499,69 @@ int container_init_environ(int flag)
       fail:
 	BUG();
 	return -1;
+}
+
+int container_image_analyze_layer(const char *image,
+				  struct container_image_builder *c)
+{
+	FILE *fp;
+	char buf[256];
+
+	snprintf(buf, sizeof(buf), IMAGES_DIR "/%s/layer", image);
+	fp = fopen(buf, "r");
+
+	fscanf(fp, "%d", &c->layers);
+
+	for (int i = 0; i < c->layers; i++) {
+		fscanf(fp, "%s", c->images[i]);
+	}
+
+	fclose(fp);
+	return 0;
+}
+
+static void container_image_prebuild(FILE * fp,
+				     struct container_image_builder *c,
+				     const char *image)
+{
+	char buf[256];
+	FILE *fpl;
+
+	// fp = fopen("Dockerfile", "r");
+	fgets(buf, sizeof(buf), fp);
+	sscanf(buf, "FROM %s", c->images[0]);
+	snprintf(buf, sizeof(buf), IMAGES_DIR "/%s/layer", c->images[0]);
+	snprintf(c->target_image, sizeof(c->target_image), IMAGES_DIR "/%s",
+		 image);
+
+	fpl = fopen(buf, "r");
+	fscanf(fpl, "%d", &c->layers);
+	for (int i = 0; i < c->layers; i++) {
+		fscanf(fpl, "%s", c->images[i]);
+	}
+
+	fclose(fpl);
+}
+
+int container_image_build_confirm(struct container_image_builder *c,
+				  const char *image_name)
+{
+	char buf[256];
+	FILE *fp;
+
+	snprintf(buf, sizeof(buf), "%s/layer", c->target_image);
+	fp = fopen(buf, "w");
+	fprintf(fp, "%d\n%s\n", c->layers + 1, c->target_image);
+
+	for (int i = 0; i < c->layers; i++) {
+		fprintf(fp, "%s\n", c->images[i]);
+	}
+
+	close(fp);
+
+	if (rust_image_confirm(image_name) < 0) {
+		return -1;
+	}
+
+	return 0;
 }

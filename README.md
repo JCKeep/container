@@ -35,7 +35,7 @@
 3. 进入容器
 
     ```shell
-    $ make exec
+    $ ./target/container exec
     ```
 
     ![image-20230505125204861](./assets/image-20230505125204861.png)
@@ -54,24 +54,30 @@
 {
     "cgroup": {
         "cpu": {
-            "shares": 128,
-            "cfs_limit": 0.05,
+            "shares": 2048,
+            "cfs_limit": 0.90,
             "rt_limit": 0.80
         },
         "cpuset": {
-            "cpus": "0-1,4",
-            "load_balance": 0,
+            "cpus": "4-5",
+            "load_balance": 1,
             "cpu_exclusive": 1
         },
         "memory": {
-            "memory_limit": "64M",
-            "tcp_kmemory_limit": "1G"
+            "memory_limit": "128M",
+            "tcp_kmemory_limit": "64G"
         },
         "cpuacct": {
             "enable": 1
         }
     },
-    "namespace": {
+    "image": {
+
+    },
+    "mount": {
+
+    },
+    "net": {
 
     },
     "test": "Hello World!\n"

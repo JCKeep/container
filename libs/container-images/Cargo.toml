@@ -18,6 +18,3 @@ tar = "0.4.38"
 libc = "0.2"
 flate2 = "1.0"
 
-[profile.release]
-lto = true
-opt-level = 2

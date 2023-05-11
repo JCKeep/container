@@ -41,6 +41,11 @@
 #define DATA "/root/D/kernel/demo-container/data"
 #endif
 
+#ifndef STACK_SIZE
+/* container stack size: 1M */
+#define STACK_SIZE 		(1 << 20)
+#endif
+
 #define CONTAINER_UNIX_SOCK "/root/D/kernel/demo-container/run/sock"
 #define IMAGES_DIR "/root/D/kernel/demo-container/images"
 

@@ -21,8 +21,6 @@
 #define MEMORY_LIMIT 	(1 << 26)
 /* container cpuset: 0-1, 2 core */
 #define CPUSET_LIMIT    0x0001
-/* container stack size: 1M */
-#define STACK_SIZE 		(1 << 20)
 
 #define cpuset_limit(cpuset, i)	\
 ({	\

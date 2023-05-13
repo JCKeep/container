@@ -37,11 +37,9 @@
 #define dbg(x) ({x;})
 #endif
 
-#ifndef CGROUP_v1
-#define CGROUP_SYS_CTRL "/sys/fs/cgroup/unified"
-#else
+
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"
-#endif
+
 
 #ifndef CONTAINER_NAME 
 #define CONTAINER_NAME  "demo-container"
@@ -79,17 +77,27 @@
 #define __bitwise __attribute__((bitwise))
 
 
+#define MAX_LAYER 32
+
 struct container_image_builder {
 	int argc;
 	char **argv;
 	int layers;
-	char images[5][256];
+	char images[MAX_LAYER][256];
 	char target_image[256];
 };
 
 
 int deamon();
 int container_init_environ(int flag);
-
+int container_image_analyze_layer(const char *image,
+					 struct container_image_builder *c);
+int container_image_prebuild(FILE * fp,
+				     struct container_image_builder *c,
+				     const char *image);
+int container_image_build_confirm(struct container_image_builder *c,
+					 const char *image_name);
+int container_build_image(int argc, char *argv[]);
+int container_run_command(void *arg);
 
 #endif

@@ -3,7 +3,7 @@ OBJECTS = $(patsubst src/%.c, target/%.o, $(SOURCES))
 INCLUDE = -I $(PWD)/include -I /usr/include/cjson/
 LINKS   = -L target/release
 LIBS    = -lpthread -ldl -lcjson -lcontainer_images
-DEFINES = -DNO_NSUSER -DCGROUP_v1
+DEFINES = -DNO_NSUSER -DCGROUP_V1
 FLAGS   = -Wno-incompatible-pointer-types \
 	-Wno-unused-result \
 	-Wno-unused-label \
@@ -26,7 +26,7 @@ ifeq ($(CONFIG_DEBUG),y)
 	DEFINES += -DDEBUG_INFO
 	FLAGS += -g -O0 -Wall
 else
-	FLAGS += -O2 -w 
+	FLAGS += -g -O2 -w 
 endif
 
 all: $(TARGET)

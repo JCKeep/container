@@ -2,6 +2,7 @@
 #define CONTAINER_NAMESPACE_H
 
 #include <container.h>
+#include <c_namespace/mnt.h>
 
 /* unused */
 #define NET_NAMESPACE "my_net_ns"
@@ -20,7 +21,7 @@
 #endif /* OVERLAY_ROOTFS */
 
 enum snamespace {
-	MNT,
+	MNT = 0,
 	NET,
 	PID,
 	UTS,
@@ -45,6 +46,10 @@ enum filesystem_type {
 	MOUNT_3,
 	/* tag for end */
 	NULLFS,
+};
+
+struct namespace_context {
+	struct mntns_ctx mntns;
 };
 
 struct image_mnt;

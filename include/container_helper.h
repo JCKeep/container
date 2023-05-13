@@ -23,11 +23,9 @@
 #include <stdatomic.h>
 #include <sys/socket.h>
 
-#ifndef CGROUP_v1
-#define CGROUP_SYS_CTRL "/sys/fs/cgroup/unified"
-#else
+
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"
-#endif
+
 
 #ifndef CONTAINER_NAME 
 #define CONTAINER_NAME  "demo-container"

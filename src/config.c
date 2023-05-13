@@ -97,6 +97,7 @@ int config_parse(struct container_config *conf)
 	}
 
 	cJSON_Delete(conf->json);
+	conf->json = NULL;
 
 	return 0;
 }

@@ -10,10 +10,7 @@
 
 基于 Namespace, Cgroup 及 OverlayFS 的轻量级高性能 Linux 容器 
 
-<video src="http://114.132.226.110/video/container.mp4" controls="controls" width="640" height="480">
-</video>
-
-http://114.132.226.110/video/container.mp4
+https://github.com/JCKeep/container/assets/75779357/730507fa-7243-477c-845a-14aff9afbc83
 
 ## **TO IMPLEMENT**
 

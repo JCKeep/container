@@ -10,7 +10,7 @@
 
 基于 Namespace, Cgroup 及 OverlayFS 的轻量级高性能 Linux 容器 
 
-https://github.com/JCKeep/container/assets/75779357/730507fa-7243-477c-845a-14aff9afbc83
+https://github.com/JCKeep/container/assets/75779357/708ad6f6-b090-4bb9-ab72-270c374f4835
 
 ## **TO IMPLEMENT**
 
@@ -42,9 +42,7 @@ https://github.com/JCKeep/container/assets/75779357/730507fa-7243-477c-845a-14af
 $ make default
 ```
 
-![image-20230511203838546](./assets/image-20230511203838546.png)
-
-![image-20230511203857634](./assets/image-20230511203857634.png)
+![image-20230513230020170](./assets/image-20230513230020170.png)
 
 `make default` 会使用 `CONFIG_OVERLAY` 与 `CONFIG_IMAGE` 两个编译选项用来启用 OverlayFS 文件系统分层叠加和容器镜像的支持，需一起使用。
 
@@ -114,13 +112,13 @@ $ ./target/container exec
         }
     },
     "image": {
-		// 功能已实现，但未适配配置解析模块
+		
     },
     "mount": {
-		// 功能已实现，但未适配配置解析模块
+		
     },
     "net": {
-		// TODO
+		
     }
 }
 ```

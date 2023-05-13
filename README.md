@@ -1,6 +1,41 @@
-# CONTAINER
+<h1 align = "center">Container</h1>
+<div align = "center">
+    <a href="LICENSE.md">
+        <img alt="License" src="https://img.shields.io/github/license/Cormanz/smartgpt?style=flat-square" />
+        <img src = "https://img.shields.io/badge/use-experimental-informational">
+    </a>
+</div>
+
+<hr/>
 
 基于 Namespace, Cgroup 及 OverlayFS 的轻量级高性能 Linux 容器 
+
+<video src="http://114.132.226.110/video/container.mp4" controls="controls" width="640" height="480">
+</video>
+
+http://114.132.226.110/video/container.mp4
+
+## **TO IMPLEMENT**
+
+- [x] 实现 make exec 进入容器 bash
+- [x] 使用 OverlayFS 实现文件系统分层，让多个容器安全共享
+- [x] 增加配置文件支持
+- [x] 重构 cgroup 模块
+- [x] 初步添加 Rust 支持
+- [x] 使用 OverlayFS 文件系统支持容器镜像
+- [x] 实现镜像打包功能
+- [x] 重构 namespace 模块 
+- [ ] 增加新的配置文件支持
+- [ ] 实现容器运行时（可参考crun）负责启动和管理容器的生命周期
+- [ ] 兼容 OCI 容器标准
+- [ ] 加入 user_namespace 保户主机文件安全 (目前我的 WSL 未开启 userns)
+- [ ] 增加 net_namespace 支持 
+- [ ] 编写 namespace 内核源码文档
+- [ ] 编写 cgroup 内核源码实现文档
+- [ ] bridge 网络模式
+- [ ] container 网络模式
+- [ ] 部分复杂功能使用 Rust 重构
+- [ ] **. . .**
 
 ## 如何使用
 
@@ -165,25 +200,4 @@ ab -k -n 1000000 -c 10000 http://localhost:80/test
 ![image-20230511205307538](./assets/image-20230511205307538.png)
 
 QPS 平均在 14 万左右。
-
-# **TODO**
-
-- [x] 实现 make exec 进入容器 bash
-- [x] 使用 OverlayFS 实现文件系统分层，让多个容器安全共享
-- [x] 增加配置文件支持
-- [x] 重构 cgroup 模块
-- [x] 初步添加 Rust 支持
-- [x] 使用 OverlayFS 文件系统支持容器镜像
-- [x] 实现镜像打包功能
-- [x] 重构 namespace 模块 
-- [ ] 增加新的配置文件支持
-- [ ] 实现容器后台管理 deamon 进程
-- [ ] 加入 user_namespace 保户主机文件安全 (目前我的 WSL 未开启 userns)
-- [ ] 增加 net_namespace 支持 
-- [ ] 编写 namespace 内核源码文档
-- [ ] 编写 cgroup 内核源码实现文档
-- [ ] bridge 网络模式
-- [ ] container 网络模式
-- [ ] 部分复杂功能使用 Rust 重构
-- [ ] **. . .**
 

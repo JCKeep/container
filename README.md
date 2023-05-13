@@ -14,7 +14,7 @@ $ make default
 
 ![image-20230511203857634](./assets/image-20230511203857634.png)
 
-`make default`会使用`CONFIG_OVERLAY`与`CONFIG_IMAGE`两个编译选项用来启用 OverlayFS 文件系统分层叠加和容器镜像的支持，需一起使用。
+`make default` 会使用 `CONFIG_OVERLAY` 与 `CONFIG_IMAGE` 两个编译选项用来启用 OverlayFS 文件系统分层叠加和容器镜像的支持，需一起使用。
 
 ### 运行容器
 
@@ -22,13 +22,13 @@ $ make default
 $ ./target/container run [image]
 ```
 
-`image`为镜像名称，镜像位于`images`目录下，可使用已有镜像。
+`image` 为镜像名称，镜像位于 `images` 目录下，可使用已有镜像。
 
 例：
 
 ![image-20230511200424008](./assets/image-20230511200424008.png)
 
-也可使用自己编写`Dockerfile` 指定基础镜像，并根据需求打包新的镜像。
+也可使用自己编写 `Dockerfile` 指定基础镜像，并根据需求打包新的镜像。
 
 例：基于 `ubuntu-latest` 构建 `redis` 镜像
 
@@ -175,7 +175,7 @@ QPS 平均在 14 万左右。
 - [x] 初步添加 Rust 支持
 - [x] 使用 OverlayFS 文件系统支持容器镜像
 - [x] 实现镜像打包功能
-- [ ] 重构 namespace 模块 
+- [x] 重构 namespace 模块 
 - [ ] 增加新的配置文件支持
 - [ ] 实现容器后台管理 deamon 进程
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的 WSL 未开启 userns)

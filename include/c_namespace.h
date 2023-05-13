@@ -2,7 +2,11 @@
 #define CONTAINER_NAMESPACE_H
 
 #include <container.h>
+#include <c_namespace/ns_module.h>
 #include <c_namespace/mnt.h>
+#include <c_namespace/uts.h>
+#include <c_namespace/pid.h>
+#include <c_namespace/nscgroup.h>
 
 /* unused */
 #define NET_NAMESPACE "my_net_ns"
@@ -33,49 +37,43 @@ enum snamespace {
 	NULLNS,
 };
 
-enum filesystem_type {
-	ROOTFS = 0,
-	PROCFS,
-	DEVFS,
-	SYSFS,
-	USRFS,
-	ETCFS,
-	VARFS,
-	MOUNT_1,
-	MOUNT_2,
-	MOUNT_3,
-	/* tag for end */
-	NULLFS,
+struct namespace_map {
+	char *name;
+	unsigned long flags;
+
+	/* todo */
+	int (*ns_handler)(struct namespace_map * ns);
 };
 
 struct namespace_context {
 	struct mntns_ctx mntns;
+	struct utsns_ctx utsns;
+
+	int (*init)(struct namespace_context *ctx);
+    int (*attach)(struct namespace_context *ctx, int pid);
 };
 
-struct image_mnt;
-typedef int (*mount_handler)(struct image_mnt *fs);
+extern struct namespace_context *ns_ctx;
 
-struct image_mnt {
-	const char *name;
-	const char *source;
-	const char *target;
-	const char *filesystemtype;
-	unsigned long flags;
-	mode_t mode;
-	void *data;
+struct ns_ctx_modules {
+	char *name;
 
-	/* use by mount_handler */
-	void *private_data;
-	mount_handler pre_handler;
-	mount_handler post_handler;
+	/* data offset of cgroup context */
+	uintptr_t offset;
+
+	uint64_t module;
+
+	int (*init)(struct namespace_context *ctx);
+
+	void *ctx;
 };
 
-extern char **symlinks;
-extern struct image_mnt *filesystems;
+extern struct ns_ctx_modules global_ns_ctx_modules[];
 
-int namespace_init_container_symlinks(const char *links[]);
-int namespace_init_container_filesystem(const struct image_mnt *args, int len);
-int namespace_attach_to_container(pid_t pid);
+
+// int namespace_init(struct namespace_context *ctx);
+int namespace_ctx_init(struct namespace_context *ctx);
+// int namespace_attach_to_container(struct namespace_context *ctx, pid_t pid);
 
 /* not sure */
 int namespace_init_user_ns(pid_t pid, uid_t uid, gid_t gid);

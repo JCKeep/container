@@ -28,6 +28,9 @@ int container_run(void *arg)
 	if (cgroup_ctx_init(global_cgrp_ctx) < 0)
 		goto fail;
 
+	if (namespace_ctx_init(ns_ctx) < 0)
+		goto fail;
+
 	if (config_parse(global_config) < 0)
 		goto fail;
 
@@ -41,10 +44,8 @@ int container_run(void *arg)
 		goto fail;
 
 	image_filesystems[ROOTFS].private_data = cmd;
-	if (namespace_init_container_filesystem(image_filesystems, NULLFS) < 0)
-		goto fail;
-
-	if (namespace_init_container_symlinks(symlinks) < 0)
+	ns_ctx->mntns.mnts = image_filesystems;
+	if (ns_ctx->init(ns_ctx) < 0)
 		goto fail;
 
 	sigemptyset(&mask);
@@ -91,6 +92,10 @@ int container_exec(int argc, char *argv[])
 		goto fail;
 	}
 
+	if (namespace_ctx_init(ns_ctx) < 0) {
+		goto fail;
+	}
+
 	if (config_parse(global_config) < 0) {
 		goto fail;
 	}
@@ -99,7 +104,7 @@ int container_exec(int argc, char *argv[])
 		goto fail;
 	}
 
-	if (namespace_attach_to_container(pid) < 0) {
+	if (ns_ctx->attach(ns_ctx, pid) < 0) {
 		goto fail;
 	}
 
@@ -280,12 +285,6 @@ int container_init_environ(int flag)
 
 		if (putenv(s) < 0)
 			goto fail;
-	}
-
-	/** safety in uts_namespace, we set our own container hostname */
-	if (sethostname(CONTAINER_NAME, sizeof(CONTAINER_NAME) - 1) < 0) {
-		perror("sethostname");
-		goto fail;
 	}
 
       ret:

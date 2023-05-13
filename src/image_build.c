@@ -22,6 +22,9 @@ int container_run_command(void *arg)
 	if (cgroup_ctx_init(global_cgrp_ctx) < 0)
 		goto fail;
 
+	if (namespace_ctx_init(ns_ctx) < 0)
+		goto fail;
+
 	if (config_parse(global_config) < 0)
 		goto fail;
 
@@ -32,10 +35,8 @@ int container_run_command(void *arg)
 		goto fail;
 
 	image_filesystems[ROOTFS].private_data = cmd;
-	if (namespace_init_container_filesystem(image_filesystems, NULLFS) < 0)
-		goto fail;
-
-	if (namespace_init_container_symlinks(symlinks) < 0)
+	ns_ctx->mntns.mnts = image_filesystems;
+	if (ns_ctx->init(ns_ctx) < 0)
 		goto fail;
 
 	switch ((pid = fork())) {
@@ -232,8 +233,8 @@ int container_image_analyze_layer(const char *image,
 }
 
 int container_image_prebuild(FILE * fp,
-			      struct container_image_builder *c,
-			      const char *image)
+			     struct container_image_builder *c,
+			     const char *image)
 {
 	char buf[256];
 	FILE *fpl;

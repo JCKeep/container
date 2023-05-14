@@ -8,11 +8,15 @@
 
 <hr/>
 
-基于 Namespace, Cgroup 及 OverlayFS 的轻量级高性能 Linux 容器 
+基于 Namespace, Cgroup 及 OverlayFS 的轻量级高性能 Linux 容器，实现了对 CPU，网络，内存及文件系统等资源的隔离和限制。支持用户根据 Dockerfile 进行镜像的打包及发布，并支持自定义配置文件对容器资源的管理。未来将进一步完善，以兼容 OCI 容器标准。此项目是学习 Linux 6.2 内核时偶然写的，最初仅有 200 行代码，用来调式内核的 cpu cgroup 对应的 CFS 组调度策略，所以未来该项目将编写相应的内核实现文档，如相应的 namespace，cgroup，overlay 等相关内核实现原理。
+
+项目简单演示：
 
 https://github.com/JCKeep/container/assets/75779357/e62a3202-0c74-4b3f-bc6b-05f554dbb43a
 
 ## **TO IMPLEMENT**
+
+*目前进展：着手兼容 OCI 容器镜像格式标准*
 
 - [x] 实现 make exec 进入容器 bash
 - [x] 使用 OverlayFS 实现文件系统分层，让多个容器安全共享
@@ -22,12 +26,13 @@ https://github.com/JCKeep/container/assets/75779357/e62a3202-0c74-4b3f-bc6b-05f5
 - [x] 使用 OverlayFS 文件系统支持容器镜像
 - [x] 实现镜像打包功能
 - [x] 重构 namespace 模块 
+- [ ] 重构镜像打包模块，实现 OCI 镜像格式
 - [ ] 增加新的配置文件支持
 - [ ] 实现容器运行时（可参考crun）负责启动和管理容器的生命周期
 - [ ] 兼容 OCI 容器标准
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的 WSL 未开启 userns)
 - [ ] 增加 net_namespace 支持 
-- [ ] 编写 namespace 内核源码文档
+- [ ] 编写 namespace 内核源码实现文档
 - [ ] 编写 cgroup 内核源码实现文档
 - [ ] bridge 网络模式
 - [ ] container 网络模式

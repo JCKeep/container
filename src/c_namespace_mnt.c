@@ -233,6 +233,7 @@ int namespace_init_container_filesystem(const struct image_mnt *args, int len)
 		}
 
 		if (ret < 0) {
+			BUG();
 			goto fail;
 		}
 
@@ -249,6 +250,7 @@ int namespace_init_container_filesystem(const struct image_mnt *args, int len)
 		}
 
 		if (ret < 0) {
+			BUG();
 			goto fail;
 		}
 
@@ -279,7 +281,6 @@ int namespace_init_container_filesystem(const struct image_mnt *args, int len)
 	fprintf(stderr, "\033[1munimplememt\033[0m\n");
 
       fail:
-	BUG();
 	return -1;
 }
 

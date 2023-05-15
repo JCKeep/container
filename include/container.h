@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <stdatomic.h>
+#include <sys/sysctl.h>
 #include <sys/socket.h>
 
 #ifndef RUST_BINDING_H

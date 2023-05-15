@@ -1,0 +1,99 @@
+{
+    "architecture": "amd64",
+    "config": {
+        "Hostname": "",
+        "Domainname": "",
+        "User": "",
+        "AttachStdin": false,
+        "AttachStdout": false,
+        "AttachStderr": false,
+        "Tty": false,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        ],
+        "Cmd": [
+            "/bin/bash"
+        ],
+        "Image": "sha256:c1b4be8f034d2ce3c5f9369fb11f0b66d6595faffcd4905133a915c1f1a64edd",
+        "Volumes": null,
+        "WorkingDir": "",
+        "Entrypoint": null,
+        "OnBuild": null,
+        "Labels": {
+            "org.opencontainers.image.ref.name": "ubuntu",
+            "org.opencontainers.image.version": "22.04"
+        }
+    },
+    "container": "a3c2e99cb4196425aacd1b1722b0ce1093f654c8094d28f8d60705c7041845ee",
+    "container_config": {
+        "Hostname": "a3c2e99cb419",
+        "Domainname": "",
+        "User": "",
+        "AttachStdin": false,
+        "AttachStdout": false,
+        "AttachStderr": false,
+        "Tty": false,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        ],
+        "Cmd": [
+            "/bin/sh",
+            "-c",
+            "#(nop) ",
+            "CMD [\"/bin/bash\"]"
+        ],
+        "Image": "sha256:c1b4be8f034d2ce3c5f9369fb11f0b66d6595faffcd4905133a915c1f1a64edd",
+        "Volumes": null,
+        "WorkingDir": "",
+        "Entrypoint": null,
+        "OnBuild": null,
+        "Labels": {
+            "org.opencontainers.image.ref.name": "ubuntu",
+            "org.opencontainers.image.version": "22.04"
+        }
+    },
+    "created": "2023-04-25T17:30:49.231209804Z",
+    "docker_version": "20.10.21",
+    "history": [
+        {
+            "created": "2023-04-25T17:30:47.567787516Z",
+            "created_by": "/bin/sh -c #(nop)  ARG RELEASE",
+            "empty_layer": true
+        },
+        {
+            "created": "2023-04-25T17:30:47.604948598Z",
+            "created_by": "/bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH",
+            "empty_layer": true
+        },
+        {
+            "created": "2023-04-25T17:30:47.643242197Z",
+            "created_by": "/bin/sh -c #(nop)  LABEL org.opencontainers.image.ref.name=ubuntu",
+            "empty_layer": true
+        },
+        {
+            "created": "2023-04-25T17:30:47.681842743Z",
+            "created_by": "/bin/sh -c #(nop)  LABEL org.opencontainers.image.version=22.04",
+            "empty_layer": true
+        },
+        {
+            "created": "2023-04-25T17:30:49.004717319Z",
+            "created_by": "/bin/sh -c #(nop) ADD file:2fc6364d149eccc7f94ead482a0dcf24b0e44cc0d00ac6a2c1797776153e9608 in / "
+        },
+        {
+            "created": "2023-04-25T17:30:49.231209804Z",
+            "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/bash\"]",
+            "empty_layer": true
+        }
+    ],
+    "os": "linux",
+    "rootfs": {
+        "type": "layers",
+        "diff_ids": [
+            "sha256:b8a36d10656ac19ddb96ef3107f76820663717708fc37ce929925c36d1b1d157"
+        ]
+    }
+}

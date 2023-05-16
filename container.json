@@ -8,7 +8,7 @@
         "cpuset": {
             "cpus": "4-5",
             "load_balance": 1,
-            "cpu_exclusive": 1
+            "cpu_exclusive": 0
         },
         "memory": {
             "memory_limit": "128M",

@@ -35,6 +35,7 @@ char *auto_cpu_cgroup[] = {
 
 int cgroup_init_container_cgrp(pid_t pid)
 {
+#if 0
 	int _pid;
 	char spid[16], cpu_limit[16], mem_limit[16], cpuset_limit[16];
 
@@ -62,7 +63,7 @@ int cgroup_init_container_cgrp(pid_t pid)
 		waitpid(_pid, NULL, 0);
 		break;
 	}
-
+#endif
 	return 0;
 }
 

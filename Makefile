@@ -19,7 +19,7 @@ endif
 
 ifeq ($(CONFIG_DEBUG),y)
 	DEFINES += -DDEBUG_INFO
-	FLAGS += -g -O0 -Wall
+	FLAGS += -g -O0 -w
 else
 	FLAGS += -O2 -w 
 endif
@@ -68,4 +68,4 @@ clean:
 	@rm -rf $(OUT_DIR)/*.o $(OUT_DIR)/$(TARGET) $(RUST)
 
 default:
-	@make CONFIG_OVERLAY=y CONFIG_IMAGE=y
+	@make CONFIG_OVERLAY=y CONFIG_IMAGE=y 

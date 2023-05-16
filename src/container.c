@@ -154,6 +154,21 @@ int container_exit()
 	return 0;
 }
 
+static void veth_pair_init(int pid)
+{
+	char buf[32];
+	snprintf(buf, sizeof(buf), "%d", pid);
+	if (fork() == 0) {
+		char *net_i[] = {
+			"./scripts/netns_preinit.sh",
+			buf,
+			"test",
+			NULL,
+		};
+		execv(net_i[0], net_i);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	char *stack;
@@ -200,12 +215,14 @@ int main(int argc, char *argv[])
 	}
 
 	pid = clone(container, stack + STACK_SIZE,
-		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
-		    CLONE_NEWNS | SIGCHLD, NULL);
+		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS | CLONE_NEWNET
+		    | CLONE_NEWNS | SIGCHLD, NULL);
 	if (pid == -1) {
 		perror("kernel_clone");
 		goto fail;
 	}
+
+	veth_pair_init(pid);
 
 	printf("\033[1;32mcontainer starting\033[0m\ncontainer pid %d\n", pid);
 	if (container_run_pidfile(PIDFILE, pid) < 0) {

@@ -26,12 +26,12 @@ https://github.com/JCKeep/container/assets/75779357/e62a3202-0c74-4b3f-bc6b-05f5
 - [x] 使用 OverlayFS 文件系统支持容器镜像
 - [x] 实现镜像打包功能
 - [x] 重构 namespace 模块 
+- [x] 增加 net_namespace 支持 
 - [ ] 重构镜像打包模块，实现 OCI 镜像格式
 - [ ] 增加新的配置文件支持
 - [ ] 实现容器运行时（可参考crun）负责启动和管理容器的生命周期
 - [ ] 兼容 OCI 容器标准
 - [ ] 加入 user_namespace 保户主机文件安全 (目前我的 WSL 未开启 userns)
-- [ ] 增加 net_namespace 支持 
 - [ ] 编写 namespace 内核源码实现文档
 - [ ] 编写 cgroup 内核源码实现文档
 - [ ] bridge 网络模式

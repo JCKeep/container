@@ -14,6 +14,11 @@ struct ns_ctx_modules global_ns_ctx_modules[] = {
 	 .module = UTSNS,
 	 .offset = offsetof(struct namespace_context, utsns),
 	  },
+	{
+	 .name = "netns",
+	 .module = NETNS,
+	 .offset = offsetof(struct namespace_context, netns),
+	  },
 	{ }
 };
 
@@ -268,6 +273,10 @@ int namespace_ctx_init(struct namespace_context *ctx)
 	}
 
 	if (utsns_ctx_init(&ctx->utsns) < 0) {
+		return -1;
+	}
+
+	if (netns_ctx_init(&ctx->netns) < 0) {
 		return -1;
 	}
 

@@ -6,6 +6,7 @@
 #include <c_namespace/mnt.h>
 #include <c_namespace/uts.h>
 #include <c_namespace/pid.h>
+#include <c_namespace/net.h>
 #include <c_namespace/nscgroup.h>
 
 /* unused */
@@ -48,6 +49,7 @@ struct namespace_map {
 struct namespace_context {
 	struct mntns_ctx mntns;
 	struct utsns_ctx utsns;
+	struct netns_ctx netns;
 
 	int (*init)(struct namespace_context *ctx);
     int (*attach)(struct namespace_context *ctx, int pid);

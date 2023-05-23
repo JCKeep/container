@@ -24,7 +24,6 @@
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <stdatomic.h>
-#include <sys/sysctl.h>
 #include <sys/socket.h>
 
 #ifndef RUST_BINDING_H
@@ -76,7 +75,7 @@
 #define __aligned(n) __attribute__((aligned(n)))
 #define __constructor __attribute__((constructor))
 #define __bitwise __attribute__((bitwise))
-
+#define __cleanup(func) __attribute__((cleanup(func)))
 
 #define MAX_LAYER 32
 

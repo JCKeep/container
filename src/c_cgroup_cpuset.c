@@ -135,8 +135,8 @@ static int __unused cgrp_cpuset_ctx_attach(struct cgroup_context *_ctx)
 	}
 	close(fd);
 
-	snprintf(buf, sizeof(buf),
-		 CGROUP_SYS_CTRL "/cpuset/%s/cpuset.mems", ctx->name);
+	snprintf(buf, sizeof(buf), CGROUP_SYS_CTRL "/cpuset/%s/cpuset.mems",
+		 ctx->name);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		BUG();
@@ -188,7 +188,7 @@ static int __unused cgrp_cpuset_ctx_attach(struct cgroup_context *_ctx)
 
 	return 0;
 
-      fail:
+fail:
 	return -1;
 }
 

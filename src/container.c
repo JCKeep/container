@@ -59,7 +59,7 @@ int container_run(void *arg)
 
 	return 0;
 
-      fail:
+fail:
 	BUG();
 	exit(EXIT_FAILURE);
 }
@@ -137,7 +137,7 @@ int container_exec(int argc, char *argv[])
 
 	return 0;
 
-      fail:
+fail:
 	return -1;
 }
 
@@ -207,16 +207,17 @@ int main(int argc, char *argv[])
 		goto fail;
 	}
 
-	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE
-		     | MAP_ANONYMOUS, -1, 0);
+	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
+		     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
 		perror("mmap container stack vm_area");
 		goto fail;
 	}
 
 	pid = clone(container, stack + STACK_SIZE,
-		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS | CLONE_NEWNET
-		    | CLONE_NEWNS | SIGCHLD, NULL);
+		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
+			    CLONE_NEWNET | CLONE_NEWNS | SIGCHLD,
+		    NULL);
 	if (pid == -1) {
 		perror("kernel_clone");
 		goto fail;
@@ -231,7 +232,7 @@ int main(int argc, char *argv[])
 
 	return 0;
 
-      fail:
+fail:
 	exit(EXIT_FAILURE);
 }
 
@@ -259,10 +260,9 @@ int container_init_environ(int flag)
 	if (setenv("TZ", "Asia/Shanghai", 1) < 0)
 		goto fail;
 
-	if (setenv
-	    ("PATH",
-	     "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-	     1) < 0)
+	if (setenv("PATH",
+		   "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+		   1) < 0)
 		goto fail;
 
 	if (flag & CONTAINER_EXEC) {
@@ -304,10 +304,10 @@ int container_init_environ(int flag)
 			goto fail;
 	}
 
-      ret:
+ret:
 	return 0;
 
-      fail:
+fail:
 	BUG();
 	return -1;
 }

@@ -7,17 +7,17 @@
 #define UTSNS 0x02
 
 struct utsns_ctx {
-    union {
-        struct {
-            int (*init)(struct namespace_context *ctx);
-            int (*attach)(struct namespace_context *ctx, int pid);
-        };
-        struct ns_module module;
-    };
+	union {
+		struct {
+			int (*init)(struct namespace_context *ctx);
+			int (*attach)(struct namespace_context *ctx, int pid);
+		};
+		struct ns_module module;
+	};
 
-    char name[128];
+	char name[128];
 
-    char container_name[256];
+	char container_name[256];
 };
 
 int utsns_ctx_init(struct utsns_ctx *ns);

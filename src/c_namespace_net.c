@@ -7,12 +7,7 @@ static int net_namespace_init(struct namespace_context *_ctx)
 	struct netns_ctx *ctx = &_ctx->netns;
 
 	char *args[] = {
-		"/bin/ip",
-		"link",
-		"set",
-		"lo",
-		"up",
-		NULL,
+		"/bin/ip", "link", "set", "lo", "up", NULL,
 	};
 
 	switch ((pid = fork())) {

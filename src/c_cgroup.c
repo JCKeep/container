@@ -6,26 +6,26 @@ struct cgroup_context *global_cgrp_ctx = &ctx;
 
 struct cgrp_ctx_modules global_cgrp_ctx_modules[] = {
 	{
-	 .name = "cpu",
-	 .module = CGRP_CPU_MODULE | CGRP_MODULE,
-	 .offset = offsetof(struct cgroup_context, cpu_ctx),
-	  },
+		.name = "cpu",
+		.module = CGRP_CPU_MODULE | CGRP_MODULE,
+		.offset = offsetof(struct cgroup_context, cpu_ctx),
+	},
 	{
-	 .name = "cpuset",
-	 .module = CGRP_CPUSET_MODULE | CGRP_MODULE,
-	 .offset = offsetof(struct cgroup_context, cpuset_ctx),
-	  },
+		.name = "cpuset",
+		.module = CGRP_CPUSET_MODULE | CGRP_MODULE,
+		.offset = offsetof(struct cgroup_context, cpuset_ctx),
+	},
 	{
-	 .name = "memory",
-	 .module = CGRP_MEM_MODULE | CGRP_MODULE,
-	 .offset = offsetof(struct cgroup_context, memory_ctx),
-	  },
+		.name = "memory",
+		.module = CGRP_MEM_MODULE | CGRP_MODULE,
+		.offset = offsetof(struct cgroup_context, memory_ctx),
+	},
 	{
-	 .name = "cpuacct",
-	 .module = CGRP_CPUACCT_MODULE | CGRP_MODULE,
-	 .offset = offsetof(struct cgroup_context, cpuacct_ctx),
-	  },
-	{ }
+		.name = "cpuacct",
+		.module = CGRP_CPUACCT_MODULE | CGRP_MODULE,
+		.offset = offsetof(struct cgroup_context, cpuacct_ctx),
+	},
+	{}
 };
 
 char *auto_cpu_cgroup[] = {
@@ -144,13 +144,13 @@ static int cgrp_ctx_parse(struct cgroup_context *ctx,
 			goto fail;
 		}
 
-	      next:
+next:
 		p++;
 	}
 
 	return 0;
 
-      fail:
+fail:
 	return -1;
 }
 
@@ -172,13 +172,13 @@ static int cgrp_ctx_attach(struct cgroup_context *ctx)
 			goto fail;
 		}
 
-	      next:
+next:
 		p++;
 	}
 
 	return 0;
 
-      fail:
+fail:
 	return -1;
 }
 

@@ -55,7 +55,7 @@ int container_run_command(void *arg)
 
 	return 0;
 
-      fail:
+fail:
 	BUG();
 	exit(EXIT_FAILURE);
 }
@@ -87,8 +87,8 @@ int container_build_image(int argc, char *argv[])
 	}
 
 	/* mmap the container stack */
-	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE
-		     | MAP_ANONYMOUS, -1, 0);
+	stack = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE,
+		     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
 		perror("mmap container stack vm_area");
 		goto fail;
@@ -96,7 +96,7 @@ int container_build_image(int argc, char *argv[])
 
 	cmd->argc = 0;
 	cmd->argv = malloc(24 * sizeof(char *));
-      next:
+next:
 	while ((eof = fgets(buf, sizeof(buf), fp))) {
 		p = buf;
 		item = NULL;
@@ -119,7 +119,7 @@ int container_build_image(int argc, char *argv[])
 			continue;
 		}
 
-	      run_:
+run_:
 		cmd->argc = 0;
 		item = strtok(p, " \t\n");
 		while (item) {
@@ -130,7 +130,7 @@ int container_build_image(int argc, char *argv[])
 		cmd->argv[cmd->argc] = NULL;
 		break;
 
-	      copy_:
+copy_:
 		cmd->argc = 0;
 		memcpy(&filesystems[MOUNT_1], &data, sizeof(data));
 
@@ -174,7 +174,8 @@ int container_build_image(int argc, char *argv[])
 #endif
 	pid = clone(container_run_command, stack + STACK_SIZE,
 		    CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWUTS |
-		    CLONE_NEWNS | SIGCHLD, NULL);
+			    CLONE_NEWNS | SIGCHLD,
+		    NULL);
 	if (pid == -1) {
 		perror("kernel_clone");
 		goto fail;
@@ -194,7 +195,7 @@ int container_build_image(int argc, char *argv[])
 
 		goto next;
 	}
-      end:
+end:
 	if (container_image_build_confirm(cmd, argv[2]) < 0) {
 		return -1;
 	}
@@ -204,7 +205,7 @@ int container_build_image(int argc, char *argv[])
 
 	return 0;
 
-      fail:
+fail:
 	return -1;
 }
 
@@ -232,8 +233,7 @@ int container_image_analyze_layer(const char *image,
 	return 0;
 }
 
-int container_image_prebuild(FILE * fp,
-			     struct container_image_builder *c,
+int container_image_prebuild(FILE *fp, struct container_image_builder *c,
 			     const char *image)
 {
 	char buf[256];

@@ -34,20 +34,18 @@
 #ifdef DEBUG_INFO
 #include <dbg.h>
 #else
-#define dbg(x) ({x;})
+#define dbg(x) ({ x; })
 #endif
-
 
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"
 
-
-#ifndef CONTAINER_NAME 
-#define CONTAINER_NAME  "demo-container"
+#ifndef CONTAINER_NAME
+#define CONTAINER_NAME "demo-container"
 #endif
 
 #ifndef STACK_SIZE
 /* container stack size: 1M */
-#define STACK_SIZE 		(1 << 20)
+#define STACK_SIZE (1 << 20)
 #endif
 
 #ifndef ROOT
@@ -62,12 +60,13 @@
 #define IMAGES_DIR "/root/D/kernel/demo-container/images"
 
 #ifndef HAVE_BUG
-#define BUG() do { \
-	fprintf(stderr, "BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
-	exit(EXIT_FAILURE); \
-} while (0)
+#define BUG()                                                              \
+	do {                                                               \
+		fprintf(stderr, "BUG: failure at %s:%d/%s()!\n", __FILE__, \
+			__LINE__, __func__);                               \
+		exit(EXIT_FAILURE);                                        \
+	} while (0)
 #endif
-
 
 #define __deprecated __attribute__((deprecated))
 #define __unused __attribute__((unused))
@@ -87,16 +86,14 @@ struct container_image_builder {
 	char target_image[256];
 };
 
-
 int deamon();
 int container_init_environ(int flag);
 int container_image_analyze_layer(const char *image,
-					 struct container_image_builder *c);
-int container_image_prebuild(FILE * fp,
-				     struct container_image_builder *c,
-				     const char *image);
+				  struct container_image_builder *c);
+int container_image_prebuild(FILE *fp, struct container_image_builder *c,
+			     const char *image);
 int container_image_build_confirm(struct container_image_builder *c,
-					 const char *image_name);
+				  const char *image_name);
 int container_build_image(int argc, char *argv[]);
 int container_run_command(void *arg);
 

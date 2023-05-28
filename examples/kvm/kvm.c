@@ -11,16 +11,16 @@
 #include <stdint.h>
 #include <linux/kvm.h>
 
-#define STACK_RSP       0x20000
+#define STACK_RSP 0x20000
 
-#define PTE32_PRESENT   (1U << 0)   // 页表项存在位
-#define PTE32_RW        (1U << 1)   // 读/写权限位
-#define PTE32_USER      (1U << 2)   // 用户态访问权限位
-#define PTE32_WRITETHRU (1U << 3)   // 写通透位
-#define PTE32_CACHE     (1U << 4)   // 缓存控制位
-#define PTE32_ACCESSED  (1U << 5)   // 访问位
-#define PTE32_DIRTY     (1U << 6)   // 脏页位
-#define PTE32_GLOBAL    (1U << 8)   // 全局页位
+#define PTE32_PRESENT (1U << 0) // 页表项存在位
+#define PTE32_RW (1U << 1) // 读/写权限位
+#define PTE32_USER (1U << 2) // 用户态访问权限位
+#define PTE32_WRITETHRU (1U << 3) // 写通透位
+#define PTE32_CACHE (1U << 4) // 缓存控制位
+#define PTE32_ACCESSED (1U << 5) // 访问位
+#define PTE32_DIRTY (1U << 6) // 脏页位
+#define PTE32_GLOBAL (1U << 8) // 全局页位
 
 /* CR0 bits */
 #define CR0_PE 1u
@@ -65,7 +65,7 @@
 #define PDE32_PRESENT 1
 #define PDE32_RW (1U << 1)
 #define PDE32_USER (1U << 2)
-#define PDE32_PS (1U << 7)     // 使页表项指向4MB的大页，而不指向页表
+#define PDE32_PS (1U << 7) // 使页表项指向4MB的大页，而不指向页表
 
 /* 64-bit page * entry bits */
 #define PDE64_PRESENT 1
@@ -180,35 +180,37 @@ int run_vm(struct vm *vm, struct vcpu *vcpu, size_t sz)
 		switch (vcpu->kvm_run->exit_reason) {
 		case KVM_EXIT_HLT:
 			goto check;
-		
+
 		case KVM_EXIT_IO:
-			if (vcpu->kvm_run->io.direction == KVM_EXIT_IO_OUT
-			    && vcpu->kvm_run->io.port == 0xE9) {
+			if (vcpu->kvm_run->io.direction == KVM_EXIT_IO_OUT &&
+			    vcpu->kvm_run->io.port == 0xE9) {
 				char *p = (char *)vcpu->kvm_run;
 				fwrite(p + vcpu->kvm_run->io.data_offset,
 				       vcpu->kvm_run->io.size, 1, stdout);
 				fflush(stdout);
 				continue;
-			} else if (vcpu->kvm_run->io.direction == KVM_EXIT_IO_IN
-				&& vcpu->kvm_run->io.port == 0x80) {
+			} else if (vcpu->kvm_run->io.direction ==
+					   KVM_EXIT_IO_IN &&
+				   vcpu->kvm_run->io.port == 0x80) {
 				char *p = (char *)vcpu->kvm_run;
-				ret = fread(p + vcpu->kvm_run->io.data_offset, 
-					vcpu->kvm_run->io.size, 1, stdin);
+				ret = fread(p + vcpu->kvm_run->io.data_offset,
+					    vcpu->kvm_run->io.size, 1, stdin);
 				fflush(stdin);
 				continue;
 			}
 
-				fflush(stdout);
+			fflush(stdout);
 			/* fall through */
 		default:
-			fprintf(stderr, "Got exit_reason %d,"
+			fprintf(stderr,
+				"Got exit_reason %d,"
 				" expected KVM_EXIT_HLT (%d)\n",
 				vcpu->kvm_run->exit_reason, KVM_EXIT_HLT);
 			exit(1);
 		}
 	}
 
-      check:
+check:
 	if (ioctl(vcpu->fd, KVM_GET_REGS, &regs) < 0) {
 		perror("KVM_GET_REGS");
 		exit(1);
@@ -244,7 +246,7 @@ int run_real_mode(struct vm *vm, struct vcpu *vcpu)
 	}
 
 	sregs.cs.selector = 0x0;
-    /** 
+	/** 
      * 段基址设置为 0x100, kvm 虚拟机内物理地址从 0x100 开始
      * 实模式下，物理地址 = 段基址 + 偏移量
      * 实模式中访问 0x0 地址实际为 0x0 + 0x100 = 0x100
@@ -278,7 +280,7 @@ int run_real_mode(struct vm *vm, struct vcpu *vcpu)
 		perror("fstat guest16.o");
 		exit(1);
 	}
-	
+
 	char *g16_code = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, g16, 0);
 	if (g16_code == MAP_FAILED) {
 		perror("mmap guest16.o");
@@ -300,19 +302,19 @@ static void setup_protected_mode(struct kvm_sregs *sregs)
 		.limit = 0xffffffff,
 		.selector = 1 << 3,
 		.present = 1,
-		.type = 11,	/* Code: execute, read, accessed */
+		.type = 11, /* Code: execute, read, accessed */
 		.dpl = 0,
 		.db = 1,
-		.s = 1,		/* Code/data */
+		.s = 1, /* Code/data */
 		.l = 0,
-		.g = 1,		/* 4KB granularity */
+		.g = 1, /* 4KB granularity */
 	};
 
-	sregs->cr0 |= CR0_PE;	/* enter protected mode */
+	sregs->cr0 |= CR0_PE; /* enter protected mode */
 
 	sregs->cs = seg;
 
-	seg.type = 3;		/* Data: read/write, accessed */
+	seg.type = 3; /* Data: read/write, accessed */
 	seg.selector = 2 << 3;
 	sregs->ds = sregs->es = sregs->fs = sregs->gs = sregs->ss = seg;
 }
@@ -361,7 +363,7 @@ int run_protected_mode(struct vm *vm, struct vcpu *vcpu)
 		perror("fstat guest32.img.o");
 		exit(1);
 	}
-	
+
 	char *g32_code = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, g32, 0);
 	if (g32_code == MAP_FAILED) {
 		perror("mmap guest32.img.o");
@@ -409,8 +411,8 @@ static void setup_paged_32bit_mode(struct vm *vm, struct kvm_sregs *sregs)
 
 	sregs->cr3 = pd_addr;
 	sregs->cr4 = CR4_PSE;
-	sregs->cr0
-	    = CR0_PE | CR0_MP | CR0_ET | CR0_NE | CR0_WP | CR0_AM | CR0_PG;
+	sregs->cr0 = CR0_PE | CR0_MP | CR0_ET | CR0_NE | CR0_WP | CR0_AM |
+		     CR0_PG;
 	sregs->efer = 0;
 
 	{
@@ -419,17 +421,16 @@ static void setup_paged_32bit_mode(struct vm *vm, struct kvm_sregs *sregs)
 		// uint32_t num_entries = (0x800 - 0x0) >> 12;
 
 		// uint32_t virt_addr = 0x400;
-    	// uint32_t phys_addr = 0x400;
+		// uint32_t phys_addr = 0x400;
 
 		// for (uint32_t i = 0; i < num_entries; i++) {
-		// 	uint32_t pt_index = virt_addr >> 12;	
+		// 	uint32_t pt_index = virt_addr >> 12;
 		// 	pt[pt_index] = (phys_addr & 0xFFFFF000) | PTE32_PRESENT | PTE32_RW | PTE32_USER;
 		// 	virt_addr += 0x1000;
 		// 	phys_addr += 0x1000;
-    	// }
+		// }
 
 		// pd[0] = PDE32_PRESENT | PDE32_RW | PDE32_USER | (pt_addr & 0xfffff000);
-		
 
 		/* 虚拟地址通过页表转换后于物理地址相同 */
 		uint32_t pt_addr = 0x3000;
@@ -437,11 +438,13 @@ static void setup_paged_32bit_mode(struct vm *vm, struct kvm_sregs *sregs)
 
 		// Set up the page directory entry
 		uint32_t pd_index = (0x00000000 >> 22) & 0x3FF;
-		pd[pd_index] = (pt_addr & 0xFFFFF000) | PDE32_PRESENT | PDE32_RW | PDE32_USER;
+		pd[pd_index] = (pt_addr & 0xFFFFF000) | PDE32_PRESENT |
+			       PDE32_RW | PDE32_USER;
 
 		// Set up the page table entries
 		for (int i = 0; i < 1024; i++) {
-			pt[i] = (i << 12) | PTE32_PRESENT | PTE32_RW | PTE32_USER;
+			pt[i] = (i << 12) | PTE32_PRESENT | PTE32_RW |
+				PTE32_USER;
 		}
 
 		/* 如果想虚拟地址 = 物理地址 + 0x1000 */
@@ -504,7 +507,7 @@ int run_paged_32bit_mode(struct vm *vm, struct vcpu *vcpu)
 		perror("fstat guest32.img");
 		exit(1);
 	}
-	
+
 	char *g32_code = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, g32, 0);
 	if (g32_code == MAP_FAILED) {
 		perror("mmap guest32.img");
@@ -528,17 +531,17 @@ static void setup_64bit_code_segment(struct kvm_sregs *sregs)
 		.limit = 0xffffffff,
 		.selector = 1 << 3,
 		.present = 1,
-		.type = 11,	/* Code: execute, read, accessed */
+		.type = 11, /* Code: execute, read, accessed */
 		.dpl = 0,
 		.db = 0,
-		.s = 1,		/* Code/data */
+		.s = 1, /* Code/data */
 		.l = 1,
-		.g = 1,		/* 4KB granularity */
+		.g = 1, /* 4KB granularity */
 	};
 
 	sregs->cs = seg;
 
-	seg.type = 3;		/* Data: read/write, accessed */
+	seg.type = 3; /* Data: read/write, accessed */
 	seg.selector = 2 << 3;
 	sregs->ds = sregs->es = sregs->fs = sregs->gs = sregs->ss = seg;
 }
@@ -578,8 +581,8 @@ static void setup_long_mode(struct vm *vm, struct kvm_sregs *sregs)
 
 	sregs->cr3 = pml4_addr;
 	sregs->cr4 = CR4_PAE;
-	sregs->cr0
-	    = CR0_PE | CR0_MP | CR0_ET | CR0_NE | CR0_WP | CR0_AM | CR0_PG;
+	sregs->cr0 = CR0_PE | CR0_MP | CR0_ET | CR0_NE | CR0_WP | CR0_AM |
+		     CR0_PG;
 	sregs->efer = EFER_LME | EFER_LMA;
 
 	/* 初始化 64 位页表，使虚拟地址 = 物理地址 */
@@ -588,10 +591,12 @@ static void setup_long_mode(struct vm *vm, struct kvm_sregs *sregs)
 		uint64_t *pt = (void *)(vm->mem + pt_addr);
 
 		uint64_t pd_index = (0x0 >> 21) & 0x1FF;
-		pd[pd_index] = (pt_addr & (~0xFFFUL)) | PDE64_PRESENT | PDE64_RW | PDE64_USER;
+		pd[pd_index] = (pt_addr & (~0xFFFUL)) | PDE64_PRESENT |
+			       PDE64_RW | PDE64_USER;
 
 		for (uint64_t i = 0; i < 512; i++) {
-			pt[i] = (i << 12) | PTE32_PRESENT | PTE32_RW | PTE32_USER;
+			pt[i] = (i << 12) | PTE32_PRESENT | PTE32_RW |
+				PTE32_USER;
 		}
 	}
 
@@ -630,7 +635,7 @@ int run_long_mode(struct vm *vm, struct vcpu *vcpu)
 	}
 
 #if 1
-	int g64= open("guest64.img", O_RDONLY);
+	int g64 = open("guest64.img", O_RDONLY);
 	if (g64 < 0) {
 		perror("open guest64.img");
 		exit(1);
@@ -641,7 +646,7 @@ int run_long_mode(struct vm *vm, struct vcpu *vcpu)
 		perror("fstat guest64.img");
 		exit(1);
 	}
-	
+
 	char *g64_code = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, g64, 0);
 	if (g64_code == MAP_FAILED) {
 		perror("mmap guest32.img");
@@ -660,11 +665,10 @@ int main(int argc, char **argv)
 {
 	struct vm vm;
 	struct vcpu vcpu;
-	enum {
-		REAL_MODE,
-		PROTECTED_MODE,
-		PAGED_32BIT_MODE,
-		LONG_MODE,
+	enum { REAL_MODE,
+	       PROTECTED_MODE,
+	       PAGED_32BIT_MODE,
+	       LONG_MODE,
 	} mode = REAL_MODE;
 	int opt;
 

@@ -59,8 +59,9 @@ exit:
 	@$(OUT_DIR)/$(TARGET) exit
 
 fmt:
-	fd '.*\.c' -X indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 {}
-	@fd '.*\..*~' -X rm {}
+	fd '.*\.c' -X clang-format -i {}
+	fd '.*\.h' -X clang-format -i {}
+	# @fd '.*\..*~' -X rm {}
 	@fd -ec -eh -ers -emd -x cat {} | wc -l
 
 clean:

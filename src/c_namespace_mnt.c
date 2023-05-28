@@ -3,7 +3,7 @@
 
 #ifdef OVERLAY_ROOTFS
 
-static int overlayfs_pre_handler(struct image_mnt __unused * mnt)
+static int overlayfs_pre_handler(struct image_mnt __unused *mnt)
 {
 	int __unused ret;
 	DIR *dir = NULL;
@@ -16,7 +16,7 @@ static int overlayfs_pre_handler(struct image_mnt __unused * mnt)
 		goto images;
 	}
 
-      merge:
+merge:
 	if (!(dir = opendir(dupper))) {
 		ret = mkdir(dupper, 0755);
 	} else {
@@ -34,7 +34,7 @@ static int overlayfs_pre_handler(struct image_mnt __unused * mnt)
 	dbg("overlay");
 	return 0;
 
-      images:
+images:
 	switch (cmd->layers) {
 	case 1:
 		snprintf(lower, sizeof(lower), "%s/diff", cmd->images[0]);
@@ -71,7 +71,7 @@ static int overlayfs_pre_handler(struct image_mnt __unused * mnt)
 	goto merge;
 }
 
-static int overlayfs_post_handler(struct image_mnt __unused * mnt)
+static int overlayfs_post_handler(struct image_mnt __unused *mnt)
 {
 	if (mnt->private_data) {
 		free(mnt->data);
@@ -183,13 +183,18 @@ static struct image_mnt ___filesystems[] = {
 const static char *___symlinks[] = {
 #ifndef OVERLAY_ROOTFS
 	/* from    ->      to */
-	"/usr/bin", "/bin",
-	"/usr/lib", "/lib",
-	"/usr/lib64", "/lib64",
-	"/usr/sbin", "/sbin",
+	"/usr/bin",
+	"/bin",
+	"/usr/lib",
+	"/lib",
+	"/usr/lib64",
+	"/lib64",
+	"/usr/sbin",
+	"/sbin",
 #endif
 	/* tag for the end */
-	NULL, NULL,
+	NULL,
+	NULL,
 };
 
 char **symlinks = ___symlinks;
@@ -237,9 +242,8 @@ int namespace_init_container_filesystem(const struct image_mnt *args, int len)
 			goto fail;
 		}
 
-		if (mount
-		    (mnt->source, mnt->target, mnt->filesystemtype, mnt->flags,
-		     mnt->data) < 0) {
+		if (mount(mnt->source, mnt->target, mnt->filesystemtype,
+			  mnt->flags, mnt->data) < 0) {
 			fprintf(stderr, "mount %s: %s\n", mnt->name,
 				strerror(errno));
 			goto fail;
@@ -254,7 +258,7 @@ int namespace_init_container_filesystem(const struct image_mnt *args, int len)
 			goto fail;
 		}
 
-	      next:
+next:
 		mnt++;
 	}
 
@@ -277,10 +281,10 @@ int namespace_init_container_filesystem(const struct image_mnt *args, int len)
 
 	return 0;
 
-      unimplement:
+unimplement:
 	fprintf(stderr, "\033[1munimplememt\033[0m\n");
 
-      fail:
+fail:
 	return -1;
 }
 

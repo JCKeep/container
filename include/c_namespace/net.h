@@ -8,15 +8,15 @@
 
 /* nothing to do */
 struct netns_ctx {
-    union {
-        struct {
-            int (*init)(struct namespace_context *ctx);
-            int (*attach)(struct namespace_context *ctx, int pid);
-        };
-        struct ns_module module;
-    };
+	union {
+		struct {
+			int (*init)(struct namespace_context *ctx);
+			int (*attach)(struct namespace_context *ctx, int pid);
+		};
+		struct ns_module module;
+	};
 
-    char name[128];
+	char name[128];
 };
 
 int netns_ctx_init(struct netns_ctx *ns);

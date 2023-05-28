@@ -21,7 +21,6 @@ enum filesystem_type {
 	NULLFS,
 };
 
-
 struct image_mnt;
 typedef int (*mount_handler)(struct image_mnt *fs);
 
@@ -40,26 +39,23 @@ struct image_mnt {
 	mount_handler post_handler;
 };
 
-
 extern char **symlinks;
 extern struct image_mnt *filesystems;
 
 struct mntns_ctx {
-    union {
-        struct {
-            int (*init)(struct namespace_context *ctx);
-            int (*attach)(struct namespace_context *ctx, int pid);
-        };
-        struct ns_module module;
-    };
+	union {
+		struct {
+			int (*init)(struct namespace_context *ctx);
+			int (*attach)(struct namespace_context *ctx, int pid);
+		};
+		struct ns_module module;
+	};
 
-    char name[128];
+	char name[128];
 
-    /* if NULL, use gloabl */
-    struct image_mnt *mnts;
+	/* if NULL, use gloabl */
+	struct image_mnt *mnts;
 };
-
-
 
 int mntns_ctx_init(struct mntns_ctx *ns);
 

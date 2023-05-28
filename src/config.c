@@ -9,9 +9,8 @@ struct container_config *config_create()
 	struct container_config *conf;
 
 	/* we will call several fork(), use shared mem to avoid COW */
-	conf =
-	    mmap(NULL, sizeof(struct container_config), PROT_READ | PROT_WRITE,
-		 MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	conf = mmap(NULL, sizeof(struct container_config),
+		    PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (conf == MAP_FAILED) {
 		return NULL;
 	}
@@ -47,8 +46,8 @@ int config_init(struct container_config *conf)
 	}
 
 	/* we will call several fork(), use shared mem to avoid COW */
-	conf->buf =
-	    mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	conf->buf = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_SHARED,
+			 fd, 0);
 	if (conf->buf == MAP_FAILED) {
 		BUG();
 		goto fail;
@@ -61,7 +60,7 @@ int config_init(struct container_config *conf)
 	close(fd);
 	return 0;
 
-      fail:
+fail:
 	close(fd);
 	return -1;
 }

@@ -13,23 +13,25 @@
  * cpu cgroup 配置
 */
 struct cpu_cgrp_ctx {
-    union {
-        struct {
-            /* init cgroup ctx by default value */
-            int (*init)(struct cgroup_context *ctx);
-            /* parse config file */
-            int (*parse)(struct cgroup_context *ctx, struct config_parse_stat *stat);
-            /* unused interface */
-            int (*cgrpctl)(struct cgroup_context *ctx, unsigned long opt, void *data);
-            /* attach to /sys/fs/cgroup/[subsystem]/[my_cgroup] */
-            int (*attach)(struct cgroup_context *ctx);
-        };
-        struct cgroup_module module;
-    };
-    
-    char name[128];
+	union {
+		struct {
+			/* init cgroup ctx by default value */
+			int (*init)(struct cgroup_context *ctx);
+			/* parse config file */
+			int (*parse)(struct cgroup_context *ctx,
+				     struct config_parse_stat *stat);
+			/* unused interface */
+			int (*cgrpctl)(struct cgroup_context *ctx,
+				       unsigned long opt, void *data);
+			/* attach to /sys/fs/cgroup/[subsystem]/[my_cgroup] */
+			int (*attach)(struct cgroup_context *ctx);
+		};
+		struct cgroup_module module;
+	};
 
-    /**
+	char name[128];
+
+	/**
      * `cgroup.clone_children` 是 cgroup v2 控制组中的一个标志，用于控制子进程的行为。
      * 当设置 `cgroup.clone_children` 为 1 时，表示该 cgroup 中的进程 fork 出的子进程
      * 会自动加入该 cgroup。同时，子进程可以创建自己的子进程，这些孙子进程也会自动加入该
@@ -38,29 +40,29 @@ struct cpu_cgrp_ctx {
      *  cgroup 的限制。需要注意的是，`cgroup.clone_children` 只在 cgroup v2 中生效，
      * 而 cgroup v1 中则默认为启用递归子系统。
     */
-    int clone_children;
+	int clone_children;
 
-    /**
+	/**
      * `cgroup.sane_behavior`是一个cgroup v1的内核参数，用于控制cgroup在OOM（Out of Memory）
      * 发生时的行为。当`sane_behavior`设置为1时，cgroup在OOM发生时会尝试重新分配一部分内存以
      * 防止系统崩溃。如果`sane_behavior`设置为0，则cgroup会将OOM事件传递给子进程，由子进程自
      * 己处理OOM。需要注意的是，`cgroup.sane_behavior`只适用于cgroup v1，cgroup v2已经取消
      * 了该参数。*/
-    int sane_behavior;
+	int sane_behavior;
 
-    /**
+	/**
      * cfs_quota_us / cfs_period_us 为进程最大cpu使用比，同一cpu cgroup中所有进程共享
     */
-    int cfs_period_us;
-    int cfs_quota_us;
+	int cfs_period_us;
+	int cfs_quota_us;
 
-    /**
+	/**
      * rt_runtime_us / rt_period_us: rt_throttling 最大cpu运行比
     */
-    int rt_period_us;
-    int rt_runtime_us;
+	int rt_period_us;
+	int rt_runtime_us;
 
-    /**
+	/**
      * `cpu.shares` 是 Linux Cgroup 中用于设置 CPU 资源分配比例的参数。它是一个权重值，可以理解
      * 为一个相对权重，表示该 Cgroup 相对于其他同级别的 Cgroup 分配 CPU 时间片的相对比例。例如，
      * 如果一个 Cgroup 的 `cpu.shares` 设置为 100，另一个 Cgroup 的 `cpu.shares` 设置为 50，
@@ -70,7 +72,7 @@ struct cpu_cgrp_ctx {
      * 只是相对权重，并不能保证精确的 CPU 时间分配，因为还有其他因素可能会影响 CPU 时间的分配，如
      *  CPU 的实际利用率等。
     */
-    int shares;
+	int shares;
 };
 
 int cgroup_cpu_ctx_init(struct cpu_cgrp_ctx *ctx);

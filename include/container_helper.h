@@ -23,12 +23,10 @@
 #include <stdatomic.h>
 #include <sys/socket.h>
 
-
 #define CGROUP_SYS_CTRL "/sys/fs/cgroup"
 
-
-#ifndef CONTAINER_NAME 
-#define CONTAINER_NAME  "demo-container"
+#ifndef CONTAINER_NAME
+#define CONTAINER_NAME "demo-container"
 #endif
 
 #ifndef ROOT
@@ -41,7 +39,7 @@
 
 #ifndef STACK_SIZE
 /* container stack size: 1M */
-#define STACK_SIZE 		(1 << 20)
+#define STACK_SIZE (1 << 20)
 #endif
 
 #define CONTAINER_UNIX_SOCK "/root/D/kernel/demo-container/run/sock"

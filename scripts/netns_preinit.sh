@@ -9,6 +9,9 @@ if [ -e "$filename" ] || [ -L "$filename" ]; then
     rm "$filename"
 fi
 
+if [ ! -d "/var/run/netns" ]; then
+    mkdir /var/run/netns
+fi
 
 ln -s /proc/${pid}/ns/net /var/run/netns/${netns_name}
 

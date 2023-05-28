@@ -5,24 +5,27 @@ struct namespace_context *ns_ctx = &____ctx;
 
 struct ns_ctx_modules global_ns_ctx_modules[] = {
 	{
-	 .name = "mntns",
-	 .module = MNTNS,
-	 .offset = offsetof(struct namespace_context, mntns),
-	  },
+		.name = "mntns",
+		.module = MNTNS,
+		.offset = offsetof(struct namespace_context, mntns),
+	},
 	{
-	 .name = "utsns",
-	 .module = UTSNS,
-	 .offset = offsetof(struct namespace_context, utsns),
-	  },
+		.name = "utsns",
+		.module = UTSNS,
+		.offset = offsetof(struct namespace_context, utsns),
+	},
 	{
-	 .name = "netns",
-	 .module = NETNS,
-	 .offset = offsetof(struct namespace_context, netns),
-	  },
-	{ }
+		.name = "netns",
+		.module = NETNS,
+		.offset = offsetof(struct namespace_context, netns),
+	},
+	{}
 };
 
-#define DEFINE_NSMAP(_name, _flag) { .name = _name, .flags = _flag }
+#define DEFINE_NSMAP(_name, _flag)            \
+	{                                     \
+		.name = _name, .flags = _flag \
+	}
 
 const static struct namespace_map ns_map[] = {
 	DEFINE_NSMAP("mnt", CLONE_NEWNS),
@@ -255,7 +258,7 @@ static int namespace_attach_to_container(struct namespace_context *ctx,
 
 	return 0;
 
-      fail:
+fail:
 	BUG();
 	return -1;
 }

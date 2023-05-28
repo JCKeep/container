@@ -19,9 +19,9 @@
 #else
 #define LOWER_DIR "/root/D/kernel/demo-container/images/ubuntu_latest/diff"
 #endif
-#define MERGE_DIR  "/root/D/kernel/demo-container/run/merge"
+#define MERGE_DIR "/root/D/kernel/demo-container/run/merge"
 #define UPPER_DIR "/root/D/kernel/demo-container/run/upper"
-#define WORK_DIR  "/root/D/kernel/demo-container/run/work"
+#define WORK_DIR "/root/D/kernel/demo-container/run/work"
 
 #endif /* OVERLAY_ROOTFS */
 
@@ -43,7 +43,7 @@ struct namespace_map {
 	unsigned long flags;
 
 	/* todo */
-	int (*ns_handler)(struct namespace_map * ns);
+	int (*ns_handler)(struct namespace_map *ns);
 };
 
 struct namespace_context {
@@ -52,7 +52,7 @@ struct namespace_context {
 	struct netns_ctx netns;
 
 	int (*init)(struct namespace_context *ctx);
-    int (*attach)(struct namespace_context *ctx, int pid);
+	int (*attach)(struct namespace_context *ctx, int pid);
 };
 
 extern struct namespace_context *ns_ctx;
@@ -71,7 +71,6 @@ struct ns_ctx_modules {
 };
 
 extern struct ns_ctx_modules global_ns_ctx_modules[];
-
 
 // int namespace_init(struct namespace_context *ctx);
 int namespace_ctx_init(struct namespace_context *ctx);

@@ -37,6 +37,9 @@ https://github.com/JCKeep/container/assets/75779357/e62a3202-0c74-4b3f-bc6b-05f5
 - [ ] bridge 网络模式
 - [ ] container 网络模式
 - [ ] 部分复杂功能使用 Rust 重构
+- [ ] 添加基于虚拟化容器的支持
+  - [ ] qemu/kvm虚拟化容器
+  - [ ] firecracker虚拟化容器
 - [ ] **. . .**
 
 ## 如何使用
